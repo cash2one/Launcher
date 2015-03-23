@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Project Deploy{% endblock title %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/terminal.css') }}"/>
+{% endblock css %}
+
+{% block content %}
+
+{#    <table class="table table-bordered table-hover">#}
+{#        <caption>Projects</caption>#}
+{#        <thead>#}
+{#            <tr>#}
+{#                <td>Project No</td>#}
+{#                <td>Project Name</td>#}
+{#                <td>Client Name</td>#}
+{#                <td>Product</td>#}
+{#                <td>Server</td>#}
+{#                <td>Instance Port</td>#}
+{#                <td>Project Directory</td>#}
+{#                <td>VCS Tool</td>#}
+{#                <td>VCS Repository URL</td>#}
+{#                <td>Database Name</td>#}
+{#                <td>Deploy?</td>#}
+{#            </tr>#}
+{#        </thead>#}
+{#        <tbody>#}
+{#            {% for project in projects %}#}
+{#                <tr>#}
+{#                    <td>{{ project.id }}</td>#}
+{#                    <td>{{ project.name }}</td>#}
+{#                    <td>{{ project.client_name }}</td>#}
+{#                    <td>{{ project.server_id }}</td>#}
+{#                    <td>{{ project.instance_port }}</td>#}
+{#                    <td>{{ project.project_dir }}</td>#}
+{#                    <td>{{ project.vcs_tool }}</td>#}
+{#                    <td>{{ project.vcs_repo }}</td>#}
+{#                    <td>{{ project.mysql_db_name }}</td>#}
+{#                    <td><a href="{{ url_for('deploy_project', project_id=project.id) }}"></a>OK</td>#}
+{#                </tr>#}
+{#            {% endfor %}#}
+{#        </tbody>#}
+{#    </table>#}
+    <h3>Project Information</h3>
+    <div class="panel panel-primary">
+        <div class="panel-heading">Project Name: {{ project.name }}</div>
+        <div class="panel-body">
+            <p>Client: {{ project.client_name }}</p>
+            <p>Project Location: {{ project.project_dir }}</p>
+            <p>Project Repository: {{ project.vcs_repo }}</p>
+            <p>Project Database: {{ project.mysql_db_name }}</p>
+        </div>
+        <div class="panel-footer">
+            <button class="btn btn-danger" id="deploy">Deploy</button>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div class="window">
+        <nav class="control-window">
+            <a href="#" class="exit">Close</a>
+            <a href="#" class="minimize">Minimize</a>
+            <a href="#" class="maximize">Maximize</a>
+            <a href="#" class="deactivate">Deactivate</a>
+        </nav>
+        <h1 class="titleInside">Secure SHell</h1>
+
+        <div class="shell-container">
+            <div class="terminal">
+                <p class="command">$~> <span class="cmd"></span></p>
+{#                {% for each in out.split('\n') %}#}
+                    <p class="output">&nbsp&nbsp&nbsp </p>
+{#                {% endfor %}#}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+
+{% block js %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/project_deploy.js') }}"></script>
+{% endblock js %}

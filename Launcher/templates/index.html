@@ -12,4 +12,14 @@
             <li>Monitor</li>
         </ul>
     </div>
+
+
+{#    <p><input type="text" size="5" name="a"> +#}
+{#        <input type="text" size="5" name="b"> =#}
+{#        <span class="result">?</span>#}
+{#    <button type="button" class="calculate">Calculate</button>#}
 {% endblock content %}
+
+{% block js %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ajaj.js') }}"></script>
+{% endblock js %}

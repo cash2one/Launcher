@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Projects List{% endblock title %}
+{% block title %}Project Deploy{% endblock title %}
 
 {% block content %}
 
     <table class="table table-bordered table-hover">
-        <caption>Projects list</caption>
+        <caption>Projects</caption>
         <thead>
             <tr>
                 <td>Project No</td>
@@ -18,6 +18,7 @@
                 <td>VCS Tool</td>
                 <td>VCS Repository URL</td>
                 <td>Database Name</td>
+                <td>Deploy?</td>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@
                     <td>{{ project.vcs_tool }}</td>
                     <td>{{ project.vcs_repo }}</td>
                     <td>{{ project.mysql_db_name }}</td>
+                    <td><a href="{{ url_for('deploy_project', project_id=project.id) }}">OK</a></td>
                 </tr>
             {% endfor %}
         </tbody>

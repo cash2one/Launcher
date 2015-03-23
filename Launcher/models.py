@@ -101,7 +101,7 @@ class Project(db.Model):
     name = db.Column(db.Text)
     client_name = db.Column(db.Text)
     product_type = db.Column(db.Text)
-    server_id = db.Column(db.Integer(), db.ForeignKey('machine.id', ondelete='CASCADE'))
+    server_id = db.Column(db.Text)#, db.ForeignKey('machine.id', ondelete='CASCADE'))
     instance_port = db.Column(db.Integer)
     project_dir = db.Column(db.Text)
 

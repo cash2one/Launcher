@@ -29,6 +29,7 @@
                     <td>{{ task.params }}</td>
                     <td>{{ task.switches }}</td>
                     <td>{{ task.arguments }}</td>
+                    <td>{{ task.stage }}</td>
                     <td><a href="{{ url_for('task_detail', task_id=task.id) }}">OK</a></td>
                 </tr>
             {% endfor %}
