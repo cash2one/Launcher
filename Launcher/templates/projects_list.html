@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects List{% endblock title %}
+
+{% block content %}
+
+    <table class="table table-bordered table-hover">
+        <caption>Projects list</caption>
+        <thead>
+            <tr>
+                <td>Project No</td>
+                <td>Project Name</td>
+                <td>Client Name</td>
+                <td>Product</td>
+                <td>Server</td>
+                <td>Instance Port</td>
+                <td>Project Directory</td>
+                <td>VCS Tool</td>
+                <td>VCS Repository URL</td>
+                <td>Database Name</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+                <tr>
+                    <td>{{ project.id }}</td>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.client_name }}</td>
+                    <td>{{ project.server_id }}</td>
+                    <td>{{ project.instance_port }}</td>
+                    <td>{{ project.project_dir }}</td>
+                    <td>{{ project.vcs_tool }}</td>
+                    <td>{{ project.vcs_repo }}</td>
+                    <td>{{ project.mysql_db_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

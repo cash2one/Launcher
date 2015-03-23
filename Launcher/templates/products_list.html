@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Products List{% endblock title %}
+
+{% block content %}
+
+    <table class="table table-bordered table-hover">
+        <caption>Products list</caption>
+        <thead>
+            <tr>
+                <td>Product No</td>
+                <td>Product Name</td>
+                <td>Language</td>
+                <td>Framework</td>
+                <td>Deploy Steps</td>
+                <td>Maintain Steps</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.language }}</td>
+                    <td>{{ product.framework }}</td>
+                    <td>{{ product.deploy_steps }}</td>
+                    <td>{{ product.maintain_steps }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

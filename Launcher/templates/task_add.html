@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Task{% endblock title %}
+
+{% block content %}
+
+{#    <table class="table table-bordered table-hover">#}
+{#        <caption>Tasks list</caption>#}
+{#        <thead>#}
+{#            <tr>#}
+{#                <td>Task No</td>#}
+{#                <td>Task Name</td>#}
+{#                <td>Description</td>#}
+{#                <td>Command</td>#}
+{#                <td>Parameters</td>#}
+{#                <td>Switches</td>#}
+{#                <td>Arguments</td>#}
+{#                <td>Stage</td>#}
+{#            </tr>#}
+{#        </thead>#}
+{#        <tbody>#}
+{#            {% for task in tasks %}#}
+{#                <tr>#}
+{#                    <td>{{ task.id }}</td>#}
+{#                    <td>{{ task.name }}</td>#}
+{#                    <td>{{ task.description }}</td>#}
+{#                    <td>{{ task.cmd }}</td>#}
+{#                    <td>{{ task.params }}</td>#}
+{#                    <td>{{ task.switches }}</td>#}
+{#                    <td>{{ task.arguments }}</td>#}
+{#                    <td>{{ task.stage }}</td>#}
+{#                </tr>#}
+{#            {% endfor %}#}
+{#        </tbody>#}
+{#    </table>#}
+    <div class="container">
+    <h3>Add New Task</h3>
+    <br/>
+        <form action="" method="post" class="form-group" role="form">
+            {% for field in form._fields.keys()[1:] %}
+                <div class="form-group">
+                <label for="{{ field }}">{{ form[field].label() }}:</label>
+                    <br/>
+                    {{ form[field].render() }}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-default">Add</button>
+        </form>
+    </div>
+{% endblock content %}

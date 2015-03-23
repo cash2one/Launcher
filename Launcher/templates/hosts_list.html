@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Servers List{% endblock title %}
+
+{% block content %}
+
+    <table class="table table-bordered table-hover">
+        <caption>Hosts list</caption>
+        <thead>
+            <tr>
+                <td>Host No</td>
+                <td>Host Name</td>
+                <td>Host IP</td>
+                <td>Host Address</td>
+                <td>SSH Login Username</td>
+                <td>SSH Login Password</td>
+                <td>SSH Port</td>
+                <td>MySQL Username</td>
+                <td>MySQL Password</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for host in hosts %}
+                <tr>
+                    <td>{{ host.id }}</td>
+                    <td>{{ host.host_name }}</td>
+                    <td>{{ host.host_ip }}</td>
+                    <td>{{ host.host_address }}</td>
+                    <td>{{ host.ssh_username }}</td>
+                    <td>{{ host.ssh_password }}</td>
+                    <td>{{ host.ssh_port }}</td>
+                    <td>{{ host.mysql_username }}</td>
+                    <td>{{ host.mysql_password }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

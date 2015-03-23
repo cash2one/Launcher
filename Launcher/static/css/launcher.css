@@ -1,0 +1,114 @@
+/* Top Nav Menu */
+div.navigation-menu{
+    background-color: #708090;
+    color: #FFFFFF;
+    font-family: "sans-serif";
+    font-size: 130%;
+}
+
+button.navbar-toggle{
+    background-color: #FFFFFF;
+}
+
+a.navbar-brand, a.navbar-brand:link, a.navbar-brand:visited, a.navbar-brand:hover, a.navbar-brand:active{
+    color: #FFFFFF;
+    font-size: 160%;
+    padding: 8px;
+}
+
+a.navbar-brand i{
+    top: 5px;
+}
+
+ul.nav > li{
+    background-color: #008CBA;
+    border: 1px solid #708090;
+}
+
+.dropdown-menu{
+    font-size: 20px;
+}
+
+.dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover{
+    background-color: lightblue;
+}
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus, .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover{
+    background-color: lightblue;
+}
+
+.navbar-nav > li > a:link, .navbar-nav > li > a:visited, .navbar-nav > li > a:hover, .navbar-nav > li > a:active{
+    color: white;
+    font-family: Arial;
+}
+
+.navbar-nav .open .dropdown-menu{
+    background-color: white;
+}
+
+.navbar{
+    margin: 0;
+}
+
+.orbit-container{
+    background-color: #ebebeb;
+    font-family: "sans-serif";
+}
+.slick-slider {
+    margin-bottom: 3px;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 40px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 40px;
+    background-color: #cccccc;
+    font-family: "sans-serif";
+    border-radius: 0px 0px 25px 25px;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+/*body > .container {*/
+    /*padding: 60px 15px 0;*/
+/*}*/
+.container .text-muted {
+    margin: 10px 0;
+    color: black;
+}
+
+.footer > .container {
+    padding-right: 5px;
+    padding-left: 0px;
+}
+
+code {
+    font-size: 80%;
+}
+
+/*end*/
+
+.side-menu{
+    padding: 2px;
+}
+
+.main-content{
+    border-top: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 20px;
+}

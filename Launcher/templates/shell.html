@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Execute{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/terminal.css') }}"/>
+{% endblock css %}
+
+{% block content %}
+    <form class="form-horizontal" action="" method="post">
+        <span class="fa fa-terminal"></span> {{ form.cmd.label('Command') }}: {{ form.cmd|safe }}
+        <input type="submit" value="Go!"/>
+    </form>
+
+    <hr/>
+
+    <div class="window">
+        <nav class="control-window">
+            <a href="#" class="exit">Close</a>
+            <a href="#" class="minimize">Minimize</a>
+            <a href="#" class="maximize">Maximize</a>
+            <a href="#" class="deactivate">Deactivate</a>
+        </nav>
+        <h1 class="titleInside">Secure SHell</h1>
+
+        <div class="shell-container">
+            <div class="terminal">
+                <p class="command">$~> {{ cmd }}</p>
+                {% for each in out.split('\n') %}
+                <p class="output">&nbsp&nbsp&nbsp {{ each }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
