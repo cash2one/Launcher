@@ -93,6 +93,7 @@ class Product(db.Model):
     framework = db.Column(db.Text)
     deploy_steps = db.Column(db.Text)
     maintain_steps = db.Column(db.Text)
+    vcs_repo_base = db.Column(db.Text)
 
 
 class Project(db.Model):

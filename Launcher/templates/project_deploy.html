@@ -7,41 +7,6 @@
 {% endblock css %}
 
 {% block content %}
-
-{#    <table class="table table-bordered table-hover">#}
-{#        <caption>Projects</caption>#}
-{#        <thead>#}
-{#            <tr>#}
-{#                <td>Project No</td>#}
-{#                <td>Project Name</td>#}
-{#                <td>Client Name</td>#}
-{#                <td>Product</td>#}
-{#                <td>Server</td>#}
-{#                <td>Instance Port</td>#}
-{#                <td>Project Directory</td>#}
-{#                <td>VCS Tool</td>#}
-{#                <td>VCS Repository URL</td>#}
-{#                <td>Database Name</td>#}
-{#                <td>Deploy?</td>#}
-{#            </tr>#}
-{#        </thead>#}
-{#        <tbody>#}
-{#            {% for project in projects %}#}
-{#                <tr>#}
-{#                    <td>{{ project.id }}</td>#}
-{#                    <td>{{ project.name }}</td>#}
-{#                    <td>{{ project.client_name }}</td>#}
-{#                    <td>{{ project.server_id }}</td>#}
-{#                    <td>{{ project.instance_port }}</td>#}
-{#                    <td>{{ project.project_dir }}</td>#}
-{#                    <td>{{ project.vcs_tool }}</td>#}
-{#                    <td>{{ project.vcs_repo }}</td>#}
-{#                    <td>{{ project.mysql_db_name }}</td>#}
-{#                    <td><a href="{{ url_for('deploy_project', project_id=project.id) }}"></a>OK</td>#}
-{#                </tr>#}
-{#            {% endfor %}#}
-{#        </tbody>#}
-{#    </table>#}
     <h3>Project Information</h3>
     <div class="panel panel-primary">
         <div class="panel-heading">Project Name: {{ project.name }}</div>
@@ -69,10 +34,7 @@
 
         <div class="shell-container">
             <div class="terminal">
-                <p class="command">$~> <span class="cmd"></span></p>
-{#                {% for each in out.split('\n') %}#}
-                    <p class="output">&nbsp&nbsp&nbsp </p>
-{#                {% endfor %}#}
+                <p class="command">$~> Terminal Ready!</p>
             </div>
         </div>
     </div>
@@ -81,4 +43,12 @@
 
 {% block js %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/project_deploy.js') }}"></script>
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            $('#deploy').click(function () {
+                project_deploy({{ project.id }});
+            });
+        });
+
+    </script>
 {% endblock js %}

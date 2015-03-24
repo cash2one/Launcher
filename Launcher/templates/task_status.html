@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Status{% endblock title %}
+
+{% block content %}
+{#    <button id="start-bg-job">Start Long Calculation</button>#}
+{#    <br><br>#}
+{#    <div id="progress"></div>#}
+    {{ res }}
+{% endblock content %}
+
+{% block js %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ajaj.js') }}"></script>
+{% endblock js %}

@@ -6,11 +6,18 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_user import SQLAlchemyAdapter, UserManager
 
+from celery import Celery
+
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+
+# Initialize Flask-Mail
 mail = Mail(app)
 
+# Initialize Celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 from models import User, UserAuth
 

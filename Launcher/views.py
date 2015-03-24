@@ -1,6 +1,6 @@
 __author__ = 'HZ'
 
-from .import app, db
+from .import app, db, celery
 from flask import render_template, flash, request, redirect, url_for, jsonify
 
 from flask_user import current_user, login_required
@@ -8,6 +8,7 @@ from flask_user import current_user, login_required
 
 from formalchemy import FieldSet
 from models import *
+
 
 @app.route('/preview')
 def test():
@@ -51,7 +52,7 @@ def project_add():
     fs.configure(options=[
         fs.product_type.dropdown(product_options),
         fs.server_id.label('Server Machine').dropdown(servers),
-        fs.vcs_tool.label('Version Control').dropdown(vcs)
+        fs.vcs_tool.label('Version Control').dropdown(vcs),
     ])
 
     if request.method == 'POST':
@@ -281,7 +282,6 @@ def profile_edit():
     return ''
 
 
-
 def make_command(command='', parameters=[], switches=[], arguments=[]):
 
     print command, parameters, switches, arguments
@@ -325,10 +325,21 @@ def ajaj():
     return jsonify(res=a + b)
 
 
-def PrismDeploy():
-    import fabfile
+@app.route('/prism_deploy')
+def PrismERPDeploy():
 
-    #fabfile.tasks.LocalDeployment.deploy_project()
+    # import fabfile
+    #
+    # fabfile.tasks.LocalDeployment.checkout()
+    # fabfile.tasks.LocalDeployment.change_static_to_pro()
+    # fabfile.tasks.LocalDeployment.create_vhost()
+    print request.args
+    project_id = request.args.get('project_id')
+    project = Project.query.get(project_id)
+
+
+
+    return jsonify({})
 
 
 @app.route('/task_execute')
@@ -360,3 +371,82 @@ def task_execute():
         out = 'None'
 
     return jsonify(cmd=cmd, output=out.split('\n'))
+
+
+# Implement Celery
+
+@app.route('/longtask', methods=['POST'])
+def longtask():
+    task = long_task.apply_async()
+    return jsonify({}), 202, {'Location': url_for('taskstatus',task_id=task.id)}
+
+
+@app.route('/status/<task_id>')
+def taskstatus(task_id):
+    task = long_task.AsyncResult(task_id)
+
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
+
+
+@celery.task(bind=True)
+def long_task(self):
+    import random, time, threading
+    """Background task that runs a long function with progress reports."""
+
+    # verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
+    # adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
+    # noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
+
+    message = ''
+    total = random.randint(10, 50)
+    # for i in range(total):
+    #     if not message or random.random() < 0.25:
+    #         #message = '{0} {1} {2}...'.format(random.choice(verb),random.choice(adjective),random.choice(noun))
+    #         message = 'Task in Progress...'
+    #     self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': message})
+    #     time.sleep(1)
+
+    t = threading.Thread(target=f)
+    t.start()
+
+    while t.isAlive():
+        self.update_state(state='PROGRESS', meta={'current': 0, 'total': total, 'status': message})
+
+
+    return {'current': 100, 'total': 100, 'status': 'Task Completed!','result': 42}
+
+
+def f():
+    from fabric.api import local
+    out = local('ping me', True)
+
+@app.route('/view_task_status/<task_id>')
+def view_task_status(task_id):
+    res = taskstatus(task_id)
+
+    #print res.response
+    return render_template('task_status.html', res=res.response)
