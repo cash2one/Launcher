@@ -4,10 +4,10 @@
 
 {% block content %}
 
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover table-responsive container-fluid">
         <caption>Products list</caption>
         <thead>
-            <tr>
+            <tr class="row">
                 <td>Product No</td>
                 <td>Product Name</td>
                 <td>Language</td>
@@ -18,7 +18,7 @@
         </thead>
         <tbody>
             {% for product in products %}
-                <tr>
+                <tr class="row">
                     <td>{{ product.id }}</td>
                     <td>{{ product.name }}</td>
                     <td>{{ product.language }}</td>

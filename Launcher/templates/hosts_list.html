@@ -4,10 +4,10 @@
 
 {% block content %}
 
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover table-responsive container-fluid">
         <caption>Hosts list</caption>
         <thead>
-            <tr>
+            <tr class="row">
                 <td>Host No</td>
                 <td>Host Name</td>
                 <td>Host IP</td>
@@ -21,7 +21,7 @@
         </thead>
         <tbody>
             {% for host in hosts %}
-                <tr>
+                <tr class="row">
                     <td>{{ host.id }}</td>
                     <td>{{ host.host_name }}</td>
                     <td>{{ host.host_ip }}</td>

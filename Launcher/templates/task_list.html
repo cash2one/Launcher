@@ -4,10 +4,10 @@
 
 {% block content %}
 
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover table-responsive container-fluid">
         <caption>Tasks list</caption>
         <thead>
-            <tr>
+            <tr class="row">
                 <td>Task No</td>
                 <td>Task Name</td>
                 <td>Description</td>
@@ -21,7 +21,7 @@
         </thead>
         <tbody>
             {% for task in tasks %}
-                <tr>
+                <tr class="row">
                     <td>{{ task.id }}</td>
                     <td>{{ task.name }}</td>
                     <td>{{ task.description }}</td>

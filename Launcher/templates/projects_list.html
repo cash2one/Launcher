@@ -4,10 +4,10 @@
 
 {% block content %}
 
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover table-responsive container-fluid">
         <caption>Projects list</caption>
         <thead>
-            <tr>
+            <tr class="row">
                 <td>Project No</td>
                 <td>Project Name</td>
                 <td>Client Name</td>
@@ -22,7 +22,7 @@
         </thead>
         <tbody>
             {% for project in projects %}
-                <tr>
+                <tr class="row">
                     <td>{{ project.id }}</td>
                     <td>{{ project.name }}</td>
                     <td>{{ project.client_name }}</td>
@@ -37,4 +37,5 @@
             {% endfor %}
         </tbody>
     </table>
+
 {% endblock content %}
