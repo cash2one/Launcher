@@ -36,6 +36,8 @@ function start_long_task() {
         }
     });
 }
+
+
 function update_progress(status_url, nanobar, status_div) {
     // send GET request to status URL
     $.getJSON(status_url, function (data) {

@@ -110,3 +110,6 @@ class Project(db.Model):
     vcs_repo = db.Column(db.Text)
 
     mysql_db_name = db.Column(db.Text)
+
+    is_deployed = db.Column(db.Text)
+    celery_task_id = db.Column(db.Text)

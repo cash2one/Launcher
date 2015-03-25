@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Project Deploy{% endblock title %}
+{% block title %}Projects List{% endblock title %}
 
 {% block content %}
 
     <table class="table table-bordered table-hover table-responsive container-fluid">
-        <caption>Projects</caption>
+        <caption>Projects list</caption>
         <thead>
-            <tr class="row">
+            <tr class="row text-center">
                 <td>Project No</td>
                 <td>Project Name</td>
                 <td>Client Name</td>
@@ -18,12 +18,12 @@
                 <td>VCS Tool</td>
                 <td>VCS Repository URL</td>
                 <td>Database Name</td>
-                <td>Deploy?</td>
+                <td>Project Status</td>
             </tr>
         </thead>
         <tbody>
             {% for project in projects %}
-                <tr class="row">
+                <tr class="row text-center">
                     <td>{{ project.id }}</td>
                     <td>{{ project.name }}</td>
                     <td>{{ project.client_name }}</td>
@@ -34,9 +34,14 @@
                     <td>{{ project.vcs_tool }}</td>
                     <td>{{ project.vcs_repo }}</td>
                     <td>{{ project.mysql_db_name }}</td>
-                    <td><a href="{{ url_for('deploy_project', project_id=project.id) }}">OK</a></td>
+                    {% if project.is_deployed %}
+                    <td>Deployed</td>
+                    {% else %}
+                    <td>Not Deployed</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
 {% endblock content %}

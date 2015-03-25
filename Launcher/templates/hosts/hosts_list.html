@@ -4,10 +4,14 @@
 
 {% block content %}
 
+    <div>
+        <a href="{{ url_for('host_add') }}" class="btn btn-default">Add New Sever</a>
+    </div>
+
     <table class="table table-bordered table-hover table-responsive container-fluid">
         <caption>Hosts list</caption>
         <thead>
-            <tr class="row">
+            <tr class="row text-center">
                 <td>Host No</td>
                 <td>Host Name</td>
                 <td>Host IP</td>
@@ -21,7 +25,7 @@
         </thead>
         <tbody>
             {% for host in hosts %}
-                <tr class="row">
+                <tr class="row text-center">
                     <td>{{ host.id }}</td>
                     <td>{{ host.host_name }}</td>
                     <td>{{ host.host_ip }}</td>

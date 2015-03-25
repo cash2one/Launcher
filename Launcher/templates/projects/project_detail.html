@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Project Deploy{% endblock title %}
+{% block title %}Project Details{% endblock title %}
 
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/terminal.css') }}"/>
@@ -12,18 +12,35 @@
         <div class="panel-heading">Project Name: {{ project.name }}</div>
         <div class="panel-body">
             <p>Client: {{ project.client_name }}</p>
+            <p>Product Type: {{ project.product_type }}</p>
             <p>Project Location: {{ project.project_dir }}</p>
             <p>Project Repository: {{ project.vcs_repo }}</p>
-            <p>Project Database: {{ project.mysql_db_name }}</p>
+            <p>Project Database: mysql://{{ project.mysql_db_name }}</p>
         </div>
+
+
         <div class="panel-footer">
-            <button class="btn btn-danger" id="deploy">Deploy</button>
+            {% if project_status == 'PENDING' %}
+            <span class="alert alert-danger">Project Deployment is queued to run on....</span>
+            <p class="btn btn-danger">{{ project.server_id }}</p>
+            {% elif project_status == 'PROGRESS' %}
+                <span class="alert alert-danger">Project Deployment is under progress on....</span>
+                <p class="btn btn-danger">{{ project.server_id }}</p>
+            {% else %}
+                {% if not project.is_deployed %}
+                    <a class="btn btn-danger" id="deploy">Deploy</a>
+                {% else %}
+                    <span class="">Project already deployed successfully on </span><p class="btn btn-danger">{{ project.server_id }}</p>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 
     <hr/>
 
-    <div class="window">
+    <div id="deployment"></div>
+
+    <div class="window" style="display: none;">
         <nav class="control-window">
             <a href="#" class="exit">Close</a>
             <a href="#" class="minimize">Minimize</a>
@@ -46,7 +63,10 @@
     <script type='text/javascript'>
         $(document).ready(function () {
             $('#deploy').click(function () {
+                //$('div.window').css('display', 'block');
+                $(this).hide();
                 project_deploy({{ project.id }});
+
             });
         });
 

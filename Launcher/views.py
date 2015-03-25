@@ -1,6 +1,6 @@
 __author__ = 'HZ'
 
-from .import app, db, celery
+from .import app, db, celery, session
 from flask import render_template, flash, request, redirect, url_for, jsonify
 
 from flask_user import current_user, login_required
@@ -10,12 +10,15 @@ from formalchemy import FieldSet
 from models import *
 
 
+############################################################################
+# Dummy route for testing site layout for dev purpose
 @app.route('/preview')
 def test():
     return render_template('base.html')
 
 
-
+############################################################################
+# Site root, Index view, Dashboard
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 #@login_required
@@ -24,14 +27,18 @@ def index():
     return render_template('index.html')
 
 
+# ###########################################################################
+# List of all projects with info from database
 @app.route('/projects_list')
 def projects_list():
 
     projects = Project.query.all()
 
-    return render_template('projects_list.html', projects=projects)
+    return render_template('projects/projects_list.html', projects=projects)
 
 
+# ###########################################################################
+# Add a new project, possibly for future deploy
 @app.route('/project_add', methods=['GET', 'POST'])
 def project_add():
 
@@ -52,7 +59,9 @@ def project_add():
     fs.configure(options=[
         fs.product_type.dropdown(product_options),
         fs.server_id.label('Server Machine').dropdown(servers),
-        fs.vcs_tool.label('Version Control').dropdown(vcs),
+        fs.vcs_tool.label('Version Control').dropdown(vcs)
+        #fs.is_deployed.hidden(),
+        #fs.celery_task_id.hidden()
     ])
 
     if request.method == 'POST':
@@ -65,31 +74,51 @@ def project_add():
 
     fs.rebind(model=Project)
 
-    return render_template('project_add.html', form=fs)
+    return render_template('projects/project_add.html', form=fs)
 
 
-@app.route('/deploy_project/')
+# ###########################################################################
+# List of projects with status and action button to deploy or maintain
+@app.route('/deploy_a_project/')
 def deploy_project_list():
     projects = Project.query.all()
 
-    return render_template('project_deploy_list.html', projects=projects)
+    return render_template('projects/project_deploy_list.html', projects=projects)
 
 
-@app.route('/deploy_project/<project_id>')
+# ###########################################################################
+# Deploy a project, takes confirmation and move to actual deploy phase, all magic here
+@app.route('/project_detail/<project_id>')
 def deploy_project(project_id):
+
     project = Project.query.get(project_id)
+    task_id = project.celery_task_id
 
-    return render_template('project_deploy.html', project=project)
+    celery_task = long_task.AsyncResult(task_id)
+
+    if task_id:
+        project_status = celery_task.state
+    else:
+        project_status = ''
 
 
+    print celery_task, celery_task.state, celery_task.info
+
+    return render_template('projects/project_detail.html', project=project, project_status=project_status)
+
+
+# ###########################################################################
+# List of all software products
 @app.route('/products_list')
 def products_list():
 
     products = Product.query.all()
 
-    return render_template('products_list.html', products=products)
+    return render_template('products/products_list.html', products=products)
 
 
+# ###########################################################################
+# Add a new software solution that was made
 @app.route('/product_add', methods=['GET', 'POST'])
 def product_add():
 
@@ -114,17 +143,21 @@ def product_add():
 
     fs.rebind(model=Product)
 
-    return render_template('product_add.html', form=fs)
+    return render_template('products/product_add.html', form=fs)
 
 
+# ###########################################################################
+# List of all tasks added by Super Admin under careful consideration
 @app.route('/task_list')
 def task_list():
 
     tasks = Task.query.all()
 
-    return render_template('task_list.html', tasks=tasks)
+    return render_template('tasks/task_list.html', tasks=tasks)
 
 
+# ###########################################################################
+# Add a new task command to be executed, added by only Supreme Admin by careful planning
 @app.route('/task_add', methods=['GET','POST'])
 def task_add():
 
@@ -152,9 +185,11 @@ def task_add():
 
     fs.rebind(model=Task)
 
-    return render_template('task_add.html', form=fs)
+    return render_template('tasks/task_add.html', form=fs)
 
 
+# ###########################################################################
+# Execute a task command directly on shell, only by Supreme Admin
 @app.route('/cmd_execute', methods=['GET', 'POST'])
 def cmd_execute():
 
@@ -187,9 +222,11 @@ def cmd_execute():
         cmd = 'Enter a command!'
         out = 'None'
 
-    return render_template('shell.html', cmd=cmd, out=out, form=form)
+    return render_template('tasks/shell.html', cmd=cmd, out=out, form=form)
 
 
+# ###########################################################################
+# Gets the detail of a task process ongoing
 @app.route('/task_detail/<task_id>', methods=['GET','POST'])
 def task_detail(task_id):
 
@@ -232,27 +269,35 @@ def task_detail(task_id):
 
         return redirect(url_for('cmd_execute', cmd=cmd))
 
-    return render_template('task_detail.html', task=task, form=form)
+    return render_template('tasks/task_detail.html', task=task, form=form)
 
 
+# ###########################################################################
+# List of all registered users of the web app
 @app.route('/users_list')
 def users_list():
     return ''
 
 
+# ###########################################################################
+# Add a new user, manually by Super Admin
 @app.route('/user_add')
 def user_add():
     return ''
 
 
+# ###########################################################################
+# List of all server host machines, viewable by only authenticated users
 @app.route('/hosts_list')
 def hosts_list():
 
     hosts = Machine.query.all()
 
-    return render_template('hosts_list.html', hosts=hosts)
+    return render_template('hosts/hosts_list.html', hosts=hosts)
 
 
+# ###########################################################################
+# Add a new server host machine, manually
 @app.route('/host_add', methods=['GET','POST'])
 def host_add():
 
@@ -267,21 +312,29 @@ def host_add():
             db.session.commit()
             flash('Server successfully added!')
 
+            return redirect(url_for('hosts_list'))
+
     fs.rebind(model=Machine)
 
-    return render_template('host_add.html', form=fs)
+    return render_template('hosts/host_add.html', form=fs)
 
 
+# ###########################################################################
+# View profile, self or other members
 @app.route('/profile_view')
 def profile_view():
     return ''
 
 
+# ###########################################################################
+# Edit own profile
 @app.route('/profile_edit')
 def profile_edit():
     return ''
 
 
+# ###########################################################################
+# Makes a shell command based on options added to the database
 def make_command(command='', parameters=[], switches=[], arguments=[]):
 
     print command, parameters, switches, arguments
@@ -317,6 +370,8 @@ def make_command(command='', parameters=[], switches=[], arguments=[]):
     return cmd
 
 
+# ###########################################################################
+# Test ajaj view
 @app.route('/send')
 def ajaj():
     a = request.args.get('a', 0, type=int)
@@ -325,6 +380,8 @@ def ajaj():
     return jsonify(res=a + b)
 
 
+# ###########################################################################
+# Prism ERP deploy procedure
 @app.route('/prism_deploy')
 def PrismERPDeploy():
 
@@ -337,11 +394,11 @@ def PrismERPDeploy():
     project_id = request.args.get('project_id')
     project = Project.query.get(project_id)
 
-
-
     return jsonify({})
 
 
+# ###########################################################################
+# Execute a task and return ajaj reponse
 @app.route('/task_execute')
 def task_execute():
     from fabric.api import local
@@ -372,15 +429,25 @@ def task_execute():
 
     return jsonify(cmd=cmd, output=out.split('\n'))
 
-
-# Implement Celery
-
+############################################################################
+# Implementing Celery
+# Starts by Initiating the long celery task
 @app.route('/longtask', methods=['POST'])
 def longtask():
+
+    #start the async celery task
     task = long_task.apply_async()
+
+    #insert the celery task id in db of project for future reference
+    project = Project.query.get(request.form['project_id'])
+    project.celery_task_id = task.id
+    db.session.commit()
+
+    #return empty data, status, and request header to ajaj
     return jsonify({}), 202, {'Location': url_for('taskstatus',task_id=task.id)}
 
 
+# Get ajaj response of the current long running task
 @app.route('/status/<task_id>')
 def taskstatus(task_id):
     task = long_task.AsyncResult(task_id)
@@ -388,15 +455,11 @@ def taskstatus(task_id):
     if task.state == 'PENDING':
         response = {
             'state': task.state,
-            'current': 0,
-            'total': 1,
             'status': 'Pending...'
         }
     elif task.state != 'FAILURE':
         response = {
             'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
             'status': task.info.get('status', '')
         }
         if 'result' in task.info:
@@ -405,48 +468,32 @@ def taskstatus(task_id):
         # something went wrong in the background job
         response = {
             'state': task.state,
-            'current': 1,
-            'total': 1,
             'status': str(task.info),  # this is the exception raised
         }
     return jsonify(response)
 
 
+# The CELERY LONG TASK
 @celery.task(bind=True)
 def long_task(self):
     import random, time, threading
     """Background task that runs a long function with progress reports."""
 
-    # verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
-    # adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
-    # noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
-
     message = ''
-    total = random.randint(10, 50)
-    # for i in range(total):
-    #     if not message or random.random() < 0.25:
-    #         #message = '{0} {1} {2}...'.format(random.choice(verb),random.choice(adjective),random.choice(noun))
-    #         message = 'Task in Progress...'
-    #     self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': message})
-    #     time.sleep(1)
 
     t = threading.Thread(target=f)
     t.start()
 
     while t.isAlive():
-        self.update_state(state='PROGRESS', meta={'current': 0, 'total': total, 'status': message})
+        self.update_state(state='PROGRESS', meta={'status': 'Deployment in progress....'})
 
 
-    return {'current': 100, 'total': 100, 'status': 'Task Completed!','result': 42}
+    return {'status': 'Task Completed!', 'result': 'Project Deployment Completed!'}
 
 
+# Test function for celery
 def f():
     from fabric.api import local
-    out = local('ping me', True)
+    out = local('ping google.com', True)
 
-@app.route('/view_task_status/<task_id>')
-def view_task_status(task_id):
-    res = taskstatus(task_id)
 
-    #print res.response
-    return render_template('task_status.html', res=res.response)

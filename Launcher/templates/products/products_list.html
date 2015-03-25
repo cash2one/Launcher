@@ -7,7 +7,7 @@
     <table class="table table-bordered table-hover table-responsive container-fluid">
         <caption>Products list</caption>
         <thead>
-            <tr class="row">
+            <tr class="row text-center">
                 <td>Product No</td>
                 <td>Product Name</td>
                 <td>Language</td>
@@ -18,7 +18,7 @@
         </thead>
         <tbody>
             {% for product in products %}
-                <tr class="row">
+                <tr class="row text-center">
                     <td>{{ product.id }}</td>
                     <td>{{ product.name }}</td>
                     <td>{{ product.language }}</td>

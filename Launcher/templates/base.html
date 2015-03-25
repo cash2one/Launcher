@@ -206,23 +206,33 @@
 
                     <div class="side-menu col-lg-2">
                         <div class="panel panel-primary">
-                            <div class="panel-heading">Menu</div>
+                            <div class="panel-heading">User</div>
                             <div class="panel-body">
-                                <p>Item 1</p>
-                                <p>Item 2</p>
+                                <p>Current Logged In User Name</p>
                             </div>
 {#                            <div class="panel-footer">HZ</div>#}
+                        </div>
+
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">On</div>
+                            <div class="panel-body">
+                                <p>Currently Connected Machine Name</p>
+                                <p>Local</p>
+                            </div>
+                            {#                            <div class="panel-footer">HZ</div>#}
                         </div>
                     </div>
 
                     <div class="main-content col-lg-10">
-                        {% with messages = get_flashed_messages() %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <p class="alert alert-danger flash fa fa-flash"> {{ message }}</p>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+                        <div>
+                            {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <p class="alert alert-danger flash fa fa-flash"> {{ message }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
 
                         {% block content %}
                         {% endblock content %}
