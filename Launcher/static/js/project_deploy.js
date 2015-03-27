@@ -2,10 +2,9 @@
  * Created by HZ on 23-03-2015, 0023.
  */
 
-function project_deploy(project_id){
-    //var cmd_list = [];
+function project_deploy(project_id, project_type, spinner, message){
+    start_long_task(project_id, project_type, spinner, message);
 
-    start_long_task(project_id);
 //    $.getJSON('/prism_deploy',{project_id:project_id},function(){alert('Success');})
 
 //    $.getJSON('/task_execute', {
@@ -16,19 +15,16 @@ function project_deploy(project_id){
 //            $('<p class="output"></p>').text(data.output[each]).appendTo('div.terminal');
 //        }
 //    });
-
-
-
 }
 
 
-function start_long_task(project_id) {
+function start_long_task(project_id, project_type, spinner, message) {
     // add task status elements
     //div = $('<div><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
-    spinner = $('<img src="/static/imgs/ajax-loader.gif" width="50"/>');
+    //spinner = $('<img src="/static/imgs/ajax-loader.gif" width="75" class="center-block"/>');
     $('#deployment').append(spinner);
 
-    message = $('<div>Test</div>');
+    //message = $('<h3 class="well well-lg center-block">Status...</h3>');
     $('#deployment').append(message);
 
     // create a progress bar
@@ -41,7 +37,7 @@ function start_long_task(project_id) {
     $.ajax({
         type: 'POST',
         url: '/longtask',
-        data: {project_id: project_id},
+        data: {project_id: project_id, project_type: project_type},
         success: function (data, status, request) {
             //alert('works');
             status_url = request.getResponseHeader('Location');
@@ -63,7 +59,7 @@ function update_progress(status_url, spinner, message) {
         //nanobar.go(percent);
         //$(status_div.childNodes[1]).text(percent + '%');
         //$(status_div.childNodes[2]).text(data['status']);
-        if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+        if (data['state'] != 'PENDING' && data['state'] != 'INITIAL' && data['state'] != 'PROGRESS') {
             $(spinner).hide();
 
             if ('result' in data) {
@@ -71,18 +67,19 @@ function update_progress(status_url, spinner, message) {
                 // show result
                 //$(status_div.childNodes[3]).text('Result: ' + data['result']);
                 $('<p class="btn btn-info"></p>').text('Result: ' + data['result']).appendTo('#deployment');
+                $('div.panel-footer').hide();
 
             }
             else {
                 // something unexpected happened
                 //$(status_div.childNodes[3]).text('Result: ' + data['state']);
                 $('<p class="btn btn-info"></p>').text('Result: ' + data['result']).appendTo('#deployment');
-
+                $('div.panel-footer').hide();
             }
         }
         else {
             $(message).text(data['status']);
-            // rerun in 2 seconds
+            // rerun in 1-2 seconds
             setTimeout(function () {
                 update_progress(status_url, spinner, message);
             }, 1000);

@@ -16,8 +16,8 @@ db = SQLAlchemy(app)
 mail = Mail(app)
 
 # Initialize Celery
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+celery_obj = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery_obj.conf.update(app.config)
 
 from models import User, UserAuth
 

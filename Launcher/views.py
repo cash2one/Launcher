@@ -1,6 +1,6 @@
 __author__ = 'HZ'
 
-from .import app, db, celery, session
+from .import app, db, celery_obj, session
 from flask import render_template, flash, request, redirect, url_for, jsonify
 
 from flask_user import current_user, login_required
@@ -91,18 +91,34 @@ def deploy_project_list():
 @app.route('/project_detail/<project_id>')
 def deploy_project(project_id):
 
+    import requests, json
+    api_root = 'http://localhost:5555/api'
+    task_api = '{}/task'.format(api_root)
+    task_info_api = '{}/info'.format(task_api)
+
     project = Project.query.get(project_id)
     task_id = project.celery_task_id
 
-    celery_task = long_task.AsyncResult(task_id)
+    if project.is_deployed:
+        project_status = 'SUCCESS'
 
-    if task_id:
-        project_status = celery_task.state
+    elif task_id:
+        #project deploy process started before...chk the current status
+        url = task_info_api + '/{}'.format(task_id)
+        response = requests.get(url)
+        if response.content:
+            result = json.loads(response.content)
+            project_status = result['state']
+            print project_status
+        else:
+            #no info against task_id means it was abrupted
+            project_status = 'HAULTED'
+            print 'Project Deployment task not present in celery...celery was restarted....chk project_deployed status.'
+
     else:
-        project_status = ''
+        # Page may have been visited but deploy button not click even once...ergo deployment process never started
+        project_status = 'WAITING'
 
-
-    print celery_task, celery_task.state, celery_task.info
 
     return render_template('projects/project_detail.html', project=project, project_status=project_status)
 
@@ -381,23 +397,6 @@ def ajaj():
 
 
 # ###########################################################################
-# Prism ERP deploy procedure
-@app.route('/prism_deploy')
-def PrismERPDeploy():
-
-    # import fabfile
-    #
-    # fabfile.tasks.LocalDeployment.checkout()
-    # fabfile.tasks.LocalDeployment.change_static_to_pro()
-    # fabfile.tasks.LocalDeployment.create_vhost()
-    print request.args
-    project_id = request.args.get('project_id')
-    project = Project.query.get(project_id)
-
-    return jsonify({})
-
-
-# ###########################################################################
 # Execute a task and return ajaj reponse
 @app.route('/task_execute')
 def task_execute():
@@ -436,7 +435,10 @@ def task_execute():
 def longtask():
 
     #start the async celery task
-    task = long_task.apply_async()
+    if request.form['project_type'] == 'PrismERP':
+        task = PrismERPDeploy.apply_async([request.form['project_id']])
+    else:
+        task = long_task.apply_async([request.form['project_id']])
 
     #insert the celery task id in db of project for future reference
     project = Project.query.get(request.form['project_id'])
@@ -474,18 +476,19 @@ def taskstatus(task_id):
 
 
 # The CELERY LONG TASK
-@celery.task(bind=True)
-def long_task(self):
+@celery_obj.task(bind=True)
+def long_task(self, project_id):
     import random, time, threading
     """Background task that runs a long function with progress reports."""
 
     message = ''
+    project = Project.query.get(project_id)
 
     t = threading.Thread(target=f)
     t.start()
 
     while t.isAlive():
-        self.update_state(state='PROGRESS', meta={'status': 'Deployment in progress....'})
+        self.update_state(state='INITIAL', meta={'status': 'Deployment in progress....'})
 
 
     return {'status': 'Task Completed!', 'result': 'Project Deployment Completed!'}
@@ -497,3 +500,106 @@ def f():
     out = local('ping google.com', True)
 
 
+# ###########################################################################
+# Prism ERP deploy procedure
+@celery_obj.task(bind=True)
+def PrismERPDeploy(self, project_id):
+
+    import threading, time, os, random
+    from fabfile.fabfile import local_deploy
+
+    project = Project.query.get(project_id)
+    tasks = [
+        #['CheckOut', local_deploy.checkout],
+        ['Static File Minification', local_deploy.change_static_to_pro],
+        #['Database Creation', local_deploy.create_db],
+        ['Deployment Setting Change', local_deploy.change_settings]
+    ]
+
+    completed_tasks = 0
+
+    #Dummy Steps
+    self.update_state(state='INITIAL', meta={'status': 'Preparing to deploy......'})
+    time.sleep(4)
+    self.update_state(state='INITIAL', meta={'status': 'Gathering resources......'})
+    time.sleep(4)
+
+    sql_paths = [
+        os.path.join(project.project_dir, 'database', 'prism.sql'),
+        os.path.join(project.project_dir, 'database', 'sphere.sql'),
+        os.path.join(project.project_dir, 'database', 'lines.sql')
+    ]
+
+    changes_dict = {
+        'INTERNAL_NAME': '\'prism\'',
+        'PRODUCT_NAME': '\'Sphere\'',
+        'PRODUCT_TITLE': '\'Lines\'',
+        'DEBUG': 'False',
+        'PRODUCTION': 'True',
+        # 'DIVINEMAIL_IP' : '',
+        '\'NAME\':': '\'testdb\',',
+        '\'USER\':': '\'HUZR\',',
+        '\'PASSWORD\':': '\'123\',',
+        'BIRTVIEWER_DIR': '\'D:\\\\birt\\\\\'',
+        'COMPANY_NAME': '\'HZ\''
+    }
+
+    args_list = [
+        #[project.vcs_repo, project.project_dir],
+        [os.path.join(project.project_dir, 'public', 'static')],
+        #[project.mysql_db_name, sql_paths],
+        [project.project_dir, changes_dict]
+    ]
+
+    for i in range(len(tasks)):
+        t = threading.Thread(target=tasks[i][1], args=args_list[i])
+        current_task = tasks[i][0]
+        phrases = [
+            'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks))),
+            'Executing Task: {}.....'.format(current_task),
+            'Project Deployment in progress at step {}....'.format(str(i + 1))
+        ]
+
+        t.start()
+
+        while t.isAlive():
+
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'status': random.choice(phrases)
+                }
+            )
+
+        completed_tasks += 1
+        time.sleep(4)
+
+    # t = threading.Thread(target=tasks[0], args=[project.vcs_repo, project.project_dir])
+    # t.start()
+    # while t.isAlive():
+    #     current_task = 'CheckOut'
+    #     self.update_state(state='PROGRESS', meta={'status': 'Completed: {}...Executing Task: {}.....'.format(completed_tasks, current_task)})
+    #
+    # completed_tasks += 1
+    #
+    # t = threading.Thread(target=tasks[1], args=[os.path.join(project.project_dir,'public','static')])
+    # t.start()
+    #
+    # while t.isAlive():
+    #     current_task = 'Static File minification'
+    #     self.update_state(state='PROGRESS', meta={
+    #         'status': 'Completed: {}...Executing Task: {}.....'.format(completed_tasks, current_task)})
+    #
+    #
+    #
+    # t = threading.Thread(target=tasks[2], args=[project.mysql_db_name, sql_paths])
+    # t.start()
+    # while t.isAlive():
+    #     current_task = 'DB creation'
+    #     self.update_state(state='PROGRESS', meta={
+    #         'status': 'Completed: {}...Executing Task: {}.....'.format(completed_tasks, current_task)})
+
+    project.is_deployed = 1
+    db.session.commit()
+
+    return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!'}

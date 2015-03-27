@@ -20,25 +20,32 @@
 
 
         <div class="panel-footer">
-            {% if project_status == 'PENDING' %}
-            <span class="alert alert-danger">Project Deployment is queued to run on....</span>
-            <p class="btn btn-danger">{{ project.server_id }}</p>
-            {% elif project_status == 'PROGRESS' %}
-                <span class="alert alert-danger">Project Deployment is under progress on....</span>
+            {% if project_status == 'SUCCESS' %}
+                <span class="">Project already deployed successfully on </span>
+                <p class="btn btn-danger">{{ project.server_id }}</p>
+            {% elif project_status == 'PENDING' %}
+                <span class="alert alert-danger">Project Deployment is queued on</span>
+                <p class="btn btn-danger">{{ project.server_id }}</p>
+            {% elif project_status == 'STARTED' %}
+                <span class="alert alert-danger">Project Deployment is running on</span>
+                <p class="btn btn-danger">{{ project.server_id }}</p>
+            {% elif project_status == 'FAILURE' %}
+                <span class="alert alert-danger">Project Deployment Failed!! Check machine: </span>
+                <p class="btn btn-danger">{{ project.server_id }}</p>
+            {% elif project_status == 'HAULTED' %}
+                <span class="alert alert-danger">Project Deployment Haulted!! Celery server was stopped. Check: </span>
                 <p class="btn btn-danger">{{ project.server_id }}</p>
             {% else %}
-                {% if not project.is_deployed %}
+{#                {% if not project.is_deployed %}#}
                     <a class="btn btn-danger" id="deploy">Deploy</a>
-                {% else %}
-                    <span class="">Project already deployed successfully on </span><p class="btn btn-danger">{{ project.server_id }}</p>
-                {% endif %}
+{#                {% endif %}#}
             {% endif %}
         </div>
     </div>
 
     <hr/>
 
-    <div id="deployment"></div>
+    <div id="deployment" class="jumbotron center-block" style="display: none;"></div>
 
     <div class="window" style="display: none;">
         <nav class="control-window">
@@ -62,13 +69,33 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/project_deploy.js') }}"></script>
     <script type='text/javascript'>
         $(document).ready(function () {
-            $('#deploy').click(function () {
-                //$('div.window').css('display', 'block');
-                $(this).hide();
-                project_deploy({{ project.id }});
+            var spinner = $('<img src="/static/imgs/ajax-loader.gif" width="75" class="center-block"/>');
+            var message = $('<h3 class="well well-lg center-block">Starting.....</h3>');
 
-            });
+            var project_state = '{{ project_status }}';
+
+            if (project_state=='SUCCESS') {
+                $('div#deployment').css('display','block');
+                $('<h1 class="panel-heading panel-success glyphicon glyphicon-ok"></h1>').text(' Success!').appendTo('div#deployment');
+            }
+            else if (project_state=='STARTED') {
+                $('div#deployment').css('display', 'block');
+                //re-append the completed task states div and continue ajaj request retrieval
+                $('#deployment').append(spinner);
+                $('#deployment').append(message);
+                $('div.window').css('display', 'block');
+                update_progress('/status/{{ project.celery_task_id }}', spinner, message);
+
+            }
+            else if (project_state == 'WAITING') {
+                // button is shown, clicking on it starts ajaj
+                $('#deploy').click(function () {
+                    $('div#deployment').css('display', 'block');
+                    $('div.window').css('display', 'block');
+                    $(this).hide();
+                    project_deploy({{ project.id }}, '{{ project.product_type }}', spinner, message);
+                });
+            }
         });
-
     </script>
 {% endblock js %}

@@ -86,12 +86,71 @@ class PrismDeployment(TaskSet):
         #self.run_task('mysql -pR#2a87Gsre@1 -e "DROP DATABASE testdb;"')
         #self.run_task('mysql -pR#2a87Gsre@1 -e "show databases;"')
 
-    def change_settings(self):
+    @task_method
+    def change_settings(self, project_dir, changes_dict):
         """Change variable values of settings_deploy as per client"""
-        pass
 
-    def create_vhost(self):
-        """Create the vhost conf file and put it in apache conf folder"""
+        import os
+
+        settings_deploy = os.path.join(project_dir, 'settings_deploy.py')
+        settings_to_deploy = os.path.join(project_dir, 'setting_to_deploy.py')
+
+        #ToDo: Changes Dict must be parsed in case of cmd input, sep as ;
+        if isinstance(changes_dict, str):
+            changes_dict = {'INTERNAL_NAME':'\'PRISM\''}
+
+        if self.SHELL == 'Local':
+            # creates a temp file in the project directory, makes the new settings file and deletes the original file, renames the temp
+            try:
+                if os.path.exists(settings_deploy):
+                    sd = open(settings_deploy, 'r')
+                    settings_to_deploy = open(settings_to_deploy, 'w')
+                    settings_to_change = ['INTERNAL_NAME', 'PRODUCT_NAME', 'PRODUCT_TITLE', 'DEBUG', 'PRODUCTION',
+                                          'DIVINEMAIL_IP',
+                                          '\'NAME\':', '\'USER\':', '\'PASSWORD\':', 'BIRTVIEWER_DIR',
+                                          'BIRTVIEWER_PORT', 'COMPANY_NAME', 'EMAIL_API_URL', 'EMAIL_API_USER',
+                                          'EMAIL_API_PASSWORD', 'EMAIL_API_CALLBACK_URL']
+
+                    change = True
+
+                    for each in sd.readlines():
+                        if each.startswith('try'):
+                            change = False
+                        try:
+                            if each.split()[0] in settings_to_change and change:
+                                if each.split()[0] == 'COMPANY_NAME':
+                                    settings_to_deploy.write(each.replace(each.split(' = ')[-1], changes_dict[each.split()[0]]) + '\n')
+                                else:
+                                    settings_to_deploy.write(each.replace(each.split()[-1], changes_dict[each.split()[0]]))
+                            else:
+                                settings_to_deploy.write(each)
+                        except:
+                            settings_to_deploy.write(each)
+
+                    sd.close()
+                    settings_to_deploy.close()
+                    os.remove(sd.name)
+                    os.rename(settings_to_deploy.name, sd.name)
+
+                else:
+                    raise Exception('Settings Deploy Not Found!')
+
+
+            except Exception as e:
+                raise Exception(e)
+            pass
+        elif self.SHELL == 'Remote':
+            # remote get and put method to be used
+            pass
+        else:
+            raise Exception('Shell type was not given!')
+
+
+
+
+    def create_vhost(self, apache_conf_dir):
+        """Create the vhost conf and put it in apache conf folder"""
+        #append to the one n only httpd.conf....use apacheconfparser before to know the settings?
         vhost = '''#Project wsgi app config
         WSGIPythonPath / /usr/local/lib/python2.7
         WSGIRestrictStdin Off
@@ -159,6 +218,8 @@ class PrismMaintenance(TaskSet):
 class LocalShell(object):
     """Performs commands in local shell"""
 
+    SHELL = 'Local'
+
     def run_task(self, cmd):
         with settings(warn_only=True):
             res = local(cmd, True)
@@ -172,6 +233,8 @@ class LocalShell(object):
 
 class RemoteShell(object):
     """Performs commands in a remote shell"""
+
+    SHELL = 'Remote'
 
     def __init__(self, environment={}):
         # env.user = environment['user']
