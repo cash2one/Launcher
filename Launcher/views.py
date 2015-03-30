@@ -1,47 +1,50 @@
 __author__ = 'HZ'
 
-from .import app, db, celery_obj, session
-from flask import render_template, flash, request, redirect, url_for, jsonify
-
-from flask_user import current_user, login_required
-#from forms import UserProfileForm
+from .import app, db, celery_obj, security, mail
+from flask import render_template, flash, request, redirect, url_for, jsonify, session
 
 from formalchemy import FieldSet
 from models import *
 
+from flask.ext.security import login_required, roles_required, roles_accepted, current_user, url_for_security
+
 
 ############################################################################
-# Dummy route for testing site layout for dev purpose
 @app.route('/preview')
+@login_required
 def test():
+    """Dummy route for testing site layout for dev purpose"""
+    if current_user:
+        print current_user.email
     return render_template('base.html')
 
 
 ############################################################################
-# Site root, Index view, Dashboard
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+@app.route('/')
+@app.route('/index')
 #@login_required
 def index():
-
+    """Site root, Index view, Dashboard"""
     return render_template('index.html')
 
 
-# ###########################################################################
-# List of all projects with info from database
+############################################################################
 @app.route('/projects_list')
+#@roles_required('mod')
+@login_required
 def projects_list():
-
+    """List of all projects with info from database"""
     projects = Project.query.all()
 
     return render_template('projects/projects_list.html', projects=projects)
 
 
-# ###########################################################################
-# Add a new project, possibly for future deploy
+###########################################################################
 @app.route('/project_add', methods=['GET', 'POST'])
+@login_required
+@roles_accepted('admin', 'mod')
 def project_add():
-
+    """Add a new project, possibly for future deploy"""
     project = Project()
     fs = FieldSet(project)
 
@@ -77,20 +80,23 @@ def project_add():
     return render_template('projects/project_add.html', form=fs)
 
 
-# ###########################################################################
-# List of projects with status and action button to deploy or maintain
+###########################################################################
 @app.route('/deploy_a_project/')
+@login_required
+@roles_accepted('admin', 'mod')
 def deploy_project_list():
+    """List of projects with status and action button to deploy or maintain"""
     projects = Project.query.all()
 
     return render_template('projects/project_deploy_list.html', projects=projects)
 
 
-# ###########################################################################
-# Deploy a project, takes confirmation and move to actual deploy phase, all magic here
+###########################################################################
 @app.route('/project_detail/<project_id>')
+@login_required
+@roles_accepted('admin', 'mod')
 def deploy_project(project_id):
-
+    """Deploy a project, takes confirmation and move to actual deploy phase, all magic here"""
     import requests, json
     api_root = 'http://localhost:5555/api'
     task_api = '{}/task'.format(api_root)
@@ -123,21 +129,22 @@ def deploy_project(project_id):
     return render_template('projects/project_detail.html', project=project, project_status=project_status)
 
 
-# ###########################################################################
-# List of all software products
+###########################################################################
 @app.route('/products_list')
+@login_required
 def products_list():
-
+    """List of all software products"""
     products = Product.query.all()
 
     return render_template('products/products_list.html', products=products)
 
 
-# ###########################################################################
-# Add a new software solution that was made
+###########################################################################
 @app.route('/product_add', methods=['GET', 'POST'])
+@login_required
+@roles_accepted('admin', 'mod')
 def product_add():
-
+    """Add a new software solution that was made"""
     product = Product()
     fs = FieldSet(product)
 
@@ -162,21 +169,22 @@ def product_add():
     return render_template('products/product_add.html', form=fs)
 
 
-# ###########################################################################
-# List of all tasks added by Super Admin under careful consideration
+###########################################################################
 @app.route('/task_list')
+@login_required
 def task_list():
-
+    """List of all tasks added by Super Admin under careful consideration"""
     tasks = Task.query.all()
 
     return render_template('tasks/task_list.html', tasks=tasks)
 
 
-# ###########################################################################
-# Add a new task command to be executed, added by only Supreme Admin by careful planning
+###########################################################################
 @app.route('/task_add', methods=['GET','POST'])
+@login_required
+@roles_accepted('admin', 'mod')
 def task_add():
-
+    """Add a new task command to be executed, added by only Supreme Admin by careful planning"""
     task = Task()
     fs = FieldSet(task)
 
@@ -204,11 +212,12 @@ def task_add():
     return render_template('tasks/task_add.html', form=fs)
 
 
-# ###########################################################################
-# Execute a task command directly on shell, only by Supreme Admin
+###########################################################################
 @app.route('/cmd_execute', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
 def cmd_execute():
-
+    """Execute a task command directly on shell, only by Supreme Admin"""
     from fabric.api import local
     from forms import CmdExecuteForm
 
@@ -241,11 +250,12 @@ def cmd_execute():
     return render_template('tasks/shell.html', cmd=cmd, out=out, form=form)
 
 
-# ###########################################################################
-# Gets the detail of a task process ongoing
+###########################################################################
 @app.route('/task_detail/<task_id>', methods=['GET','POST'])
+@login_required
+@roles_accepted('admin')
 def task_detail(task_id):
-
+    """Gets the detail of a task process ongoing"""
     task = Task.query.get(task_id)
 
     from flask_wtf import Form
@@ -288,35 +298,40 @@ def task_detail(task_id):
     return render_template('tasks/task_detail.html', task=task, form=form)
 
 
-# ###########################################################################
-# List of all registered users of the web app
+###########################################################################
 @app.route('/users_list')
+@login_required
 def users_list():
+    """List of all registered users of the web app"""
     return ''
 
 
-# ###########################################################################
-# Add a new user, manually by Super Admin
+###########################################################################
 @app.route('/user_add')
+@login_required
+@roles_accepted('admin', 'mod')
 def user_add():
+    """Add a new user, manually by Super Admin"""
     return ''
 
 
-# ###########################################################################
-# List of all server host machines, viewable by only authenticated users
+###########################################################################
 @app.route('/hosts_list')
+@login_required
+@roles_accepted('admin', 'mod')
 def hosts_list():
-
+    """List of all server host machines, viewable by only authenticated users"""
     hosts = Machine.query.all()
 
     return render_template('hosts/hosts_list.html', hosts=hosts)
 
 
-# ###########################################################################
-# Add a new server host machine, manually
+###########################################################################
 @app.route('/host_add', methods=['GET','POST'])
+@login_required
+@roles_accepted('admin', 'mod')
 def host_add():
-
+    """Add a new server host machine, manually"""
     machine = Machine()
     fs = FieldSet(machine)
 
@@ -335,24 +350,25 @@ def host_add():
     return render_template('hosts/host_add.html', form=fs)
 
 
-# ###########################################################################
-# View profile, self or other members
+###########################################################################
 @app.route('/profile_view')
+@login_required
 def profile_view():
+    """View profile, self or other members"""
     return ''
 
 
-# ###########################################################################
-# Edit own profile
+###########################################################################
 @app.route('/profile_edit')
+@login_required
 def profile_edit():
+    """Edit own profile"""
     return ''
 
 
-# ###########################################################################
-# Makes a shell command based on options added to the database
+###########################################################################
 def make_command(command='', parameters=[], switches=[], arguments=[]):
-
+    """Makes a shell command based on options added to the database"""
     print command, parameters, switches, arguments
 
     cmd = command
@@ -386,20 +402,12 @@ def make_command(command='', parameters=[], switches=[], arguments=[]):
     return cmd
 
 
-# ###########################################################################
-# Test ajaj view
-@app.route('/send')
-def ajaj():
-    a = request.args.get('a', 0, type=int)
-    b = request.args.get('b', 0, type=int)
-
-    return jsonify(res=a + b)
-
-
-# ###########################################################################
-# Execute a task and return ajaj reponse
+###########################################################################
 @app.route('/task_execute')
+@login_required
+@roles_accepted('admin', 'mod')
 def task_execute():
+    """Execute a task and return ajaj reponse"""
     from fabric.api import local
 
     if request.method == 'GET' and request.args:
@@ -428,10 +436,13 @@ def task_execute():
 
     return jsonify(cmd=cmd, output=out.split('\n'))
 
+
 ############################################################################
 # Implementing Celery
 # Starts by Initiating the long celery task
 @app.route('/longtask', methods=['POST'])
+@login_required
+@roles_accepted('admin', 'mod')
 def longtask():
 
     #start the async celery task
@@ -451,6 +462,8 @@ def longtask():
 
 # Get ajaj response of the current long running task
 @app.route('/status/<task_id>')
+@login_required
+@roles_accepted('admin', 'mod')
 def taskstatus(task_id):
     task = long_task.AsyncResult(task_id)
 
@@ -572,34 +585,28 @@ def PrismERPDeploy(self, project_id):
             )
 
         completed_tasks += 1
-        time.sleep(4)
 
-    # t = threading.Thread(target=tasks[0], args=[project.vcs_repo, project.project_dir])
-    # t.start()
-    # while t.isAlive():
-    #     current_task = 'CheckOut'
-    #     self.update_state(state='PROGRESS', meta={'status': 'Completed: {}...Executing Task: {}.....'.format(completed_tasks, current_task)})
-    #
-    # completed_tasks += 1
-    #
-    # t = threading.Thread(target=tasks[1], args=[os.path.join(project.project_dir,'public','static')])
-    # t.start()
-    #
-    # while t.isAlive():
-    #     current_task = 'Static File minification'
-    #     self.update_state(state='PROGRESS', meta={
-    #         'status': 'Completed: {}...Executing Task: {}.....'.format(completed_tasks, current_task)})
-    #
-    #
-    #
-    # t = threading.Thread(target=tasks[2], args=[project.mysql_db_name, sql_paths])
-    # t.start()
-    # while t.isAlive():
-    #     current_task = 'DB creation'
-    #     self.update_state(state='PROGRESS', meta={
-    #         'status': 'Completed: {}...Executing Task: {}.....'.format(completed_tasks, current_task)})
+        self.update_state(
+            state='PROGRESS',
+            meta={
+                'status': phrases[0]
+            }
+        )
+
+        time.sleep(4)
 
     project.is_deployed = 1
     db.session.commit()
 
     return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!'}
+
+# Setup the task
+@celery_obj.task
+def send_security_email(msg):
+    # Use the Flask-Mail extension instance to send the incoming ``msg`` parameter
+    # which is an instance of `flask_mail.Message`
+    mail.send(msg)
+
+@security.send_mail_task
+def delay_security_email(msg):
+    send_security_email.delay(msg)

@@ -1,0 +1,21 @@
+{# Render a Complete field with labels and errors #}
+{% macro render_field_with_errors(field) %}
+  <p>
+    {{ field.label }} {{ field(**kwargs)|safe }}
+    {% if field.errors %}
+      {% for error in field.errors %}
+        <p class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> {{ error }}</p>
+      {% endfor %}
+    {% endif %}
+  </p>
+{% endmacro %}
+
+{# Render the field only without label #}
+{% macro render_field(field) %}
+  <p>{{ field(**kwargs)|safe }}</p>
+{% endmacro %}
+
+{# Render Checkbox #}
+{% macro render_checkbox(field) %}
+  {{ field(**kwargs)|safe }}
+{% endmacro %}

@@ -1,11 +1,10 @@
 __author__ = 'HZ'
 #package
 
-from flask import Flask, session
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
-from flask_user import SQLAlchemyAdapter, UserManager
-
+from flask.ext.security import Security, SQLAlchemyUserDatastore
 from celery import Celery
 
 app = Flask(__name__)
@@ -15,14 +14,14 @@ db = SQLAlchemy(app)
 # Initialize Flask-Mail
 mail = Mail(app)
 
+
+from models import User, Role
+# Setup Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+
 # Initialize Celery
 celery_obj = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery_obj.conf.update(app.config)
-
-from models import User, UserAuth
-
-# Setup Flask-User
-db_adapter = SQLAlchemyAdapter(db, User, UserAuthClass=UserAuth)  # Register the User model
-user_manager = UserManager(db_adapter, app)  # Initialize Flask-User
 
 from .import views, models

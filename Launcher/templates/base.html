@@ -47,66 +47,59 @@
                         <a class="navbar-brand" href="/"><span class="fa fa-rocket"></span> Launcher </a>
                     </div>
 
+
+                    <!-------------------------------Navigation Bar------------------------------------->
                     <!-- Collect the nav links, forms, and other content for toggling menu of mobile -->
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
                         <ul class="nav navbar-nav navbar-right">
                             <li class=""><a href="{{ url_for('index') }}"><span class="fa fa-dashboard"></span> Dashboard</a></li>
-{#                                <li><a href="#">Projects</a></li>#}
 
+                            {% if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-paperclip"></span> Projects <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('projects_list') }}"><span class="fa fa-list"></span> All Projects</a></li>
                                     <li><a href="{{ url_for('project_add') }}"><span class="fa fa-file-o"></span> Create New Project</a></li>
-{#                                        <li><a href="#">Something else here</a></li>#}
-                                        <li class="divider"></li>
-                                        <li><a href="{{ url_for('deploy_project_list') }}" class="fa fa-rocket"> Deploy a Project</a></li>
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">One more separated link</a></li>#}
+                                    <li class="divider"></li>
+                                    <li><a href="{{ url_for('deploy_project_list') }}" class="fa fa-rocket"> Deploy a Project</a></li>
                                 </ul>
                             </li>
+                            {% endif %}
 
+                            {% if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-shopping-cart"></span> Products <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('products_list') }}"><span class="fa fa-list-ul"></span> All Products</a></li>
                                     <li><a href="{{ url_for('product_add') }}"><span class="fa fa-cart-plus"></span> Add New Product</a></li>
-{#                                        <li><a href="#">Something else here</a></li>#}
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">Separated link</a></li>#}
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">One more separated link</a></li>#}
                                 </ul>
                             </li>
+                            {% endif %}
 
+                            {% if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-tasks"></span> Tasks <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('task_list') }}"><span class="fa fa-pencil-square-o"></span> All Tasks</a></li>
                                     <li><a href="{{ url_for('task_add') }}"><span class="fa fa-code"></span> Create New Task</a></li>
-{#                                        <li><a href="#">Something else here</a></li>#}
                                     <li class="divider"></li>
-{#                                    <li><a href="{{ url_for('task_execute') }}"><span class="fa fa-terminal"></span> &nbsp;&nbsp;Execute Task</a></li>#}
                                     <li><a href="{{ url_for('cmd_execute') }}"><span class="fa fa-terminal"></span> &nbsp;&nbsp;Execute Command</a></li>
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">One more separated link</a></li>#}
                                 </ul>
                             </li>
+                            {% endif %}
 
+                            {% if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user"></span> Users <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('users_list') }}"><span class="fa fa-users"></span> List of Users</a></li>
-                                    <li><a href="{{ url_for('user_add') }}"><span class="fa fa-user-plus"></span> Add New User</a></li>
-{#                                        <li><a href="#">Something else here</a></li>#}
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">Separated link</a></li>#}
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">One more separated link</a></li>#}
+                                    <li><a href="{{ url_for('user_add') }}"><span class="fa fa-user-plus"></span> Add New User</a></li>i>#}
                                 </ul>
                             </li>
+                            {% endif %}
 
+                            {% if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                    aria-expanded="false"><span class="fa fa-desktop"></span> Host Machines <span
@@ -114,80 +107,50 @@
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('hosts_list') }}"><span class="fa fa-server"></span> List of Servers</a></li>
                                     <li><a href="{{ url_for('host_add') }}"><span class="fa fa-plus-square"></span> Add New Host</a></li>
-                                    {#                                        <li><a href="#">Something else here</a></li>#}
-                                    {#                                        <li class="divider"></li>#}
-                                    {#                                        <li><a href="#">Separated link</a></li>#}
-                                    {#                                        <li class="divider"></li>#}
-                                    {#                                        <li><a href="#">One more separated link</a></li>#}
                                 </ul>
                             </li>
+                            {% endif %}
 
+                            {% if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-cog"></span> Settings <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('profile_view') }}"><span class="fa fa-user-secret"></span> My Profile</a></li>
                                     <li><a href="{{ url_for('profile_edit') }}"><span class="fa fa-edit"></span> Edit Profile Information</a></li>
-{#                                        <li><a href="#">Something else here</a></li>#}
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">Separated link</a></li>#}
-{#                                        <li class="divider"></li>#}
-{#                                        <li><a href="#">One more separated link</a></li>#}
+                                    <li><a href="{{ url_for_security('change_password') }}"><span class="fa fa-asterisk"></span> Change Password</a></li>
                                 </ul>
                             </li>
+                            {% endif %}
 
-{#                                <li>#}
-{#                                    <form class="navbar-form navbar-right">#}
-{#                                        <div class="form-group">#}
-{#                                          <input type="text" placeholder="Email" class="form-control">#}
-{#                                        </div>#}
-{#                                        <div class="form-group">#}
-{#                                          <input type="password" placeholder="Password" class="form-control">#}
-{#                                        </div>#}
-{#                                        <button type="submit" class="btn btn-success">Sign in</button>#}
-{#                                      </form>#}
-{#                                </li>#}
                             {% if current_user.is_authenticated() %}
-                            <li><a href="#"><span class="fa fa-key"></span> Log In</a></li>
-{#                            <li><a href="#"><span class="fa fa-lock"></span> Log Out</a></li>#}
-                            <li><a href="#"><span class="fa fa-plug"></span> Register</a></li>
+                            <li><a href="{{ url_for_security('logout') }}"><span class="fa fa-key"></span> Log Out</a></li>
+                            {% else %}
+                            <li><a href="{{ url_for_security('login') }}"><span class="fa fa-lock"></span> Log In</a></li>
+                            <li><a href="{{ url_for_security('register') }}"><span class="fa fa-plug"></span> Register</a></li>
                             {% endif %}
                         </ul>
-
-
-{#                            <ul class="nav navbar-nav navbar-right">#}
-{#                                <li><a href="#">Link</a></li>#}
-{#                                <li class="dropdown">#}
-{#                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>#}
-{#                                    <ul class="dropdown-menu" role="menu">#}
-{#                                    <li><a href="#">Action</a></li>#}
-{#                                    <li><a href="#">Another action</a></li>#}
-{#                                    <li><a href="#">Something else here</a></li>#}
-{#                                    <li class="divider"></li>#}
-{#                                    <li><a href="#">Separated link</a></li>#}
-{#                                    </ul>#}
-{#                                </li>#}
-{#                            </ul>#}
                     </div><!-- /.navbar-collapse -->
                 </div><!-- /.container-fluid -->
             </nav>
 
 
+            <!---------------------------------Carousel-------------------------------->
             <div class='orbit-container'>
                 <div class="row">
-                    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-7">
+                    <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12">
                         <img src="{{ url_for('static', filename='imgs/logo.png') }}"/>
                     </div>
-                    <div class="col-lg-9 col-md-8 col-sm-8 col-xs-5">
+                    <div class="col-lg-9 col-md-8 hidden-sm hidden-xs">
                         <h2>Launcher</h2>
                         <p><i>All in one</i></p>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-7">
+                    <div class="col-lg-3 col-md-4 hidden-sm hidden-xs">
                         <img src="{{ url_for('static', filename='imgs/roc.gif') }}" width="300"/>
                     </div>
-                    <div class="col-lg-9 col-md-8 col-sm-8 col-xs-5">
+                    <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12">
                         <h1 class="nice-font">Automate Admin Tasks!</h1>
                         <blockquote>Deploy, Manage and Monitor projects</blockquote>
                     </div>
@@ -195,35 +158,34 @@
 
             </div>
 
-            <div class="container-fluid theme-showcase" role="main">
 
-                <!-- Main jumbotron for a primary marketing message or call to action -->
-{#                <div class="jumbotron">#}
-{#                    <h1>Theme example</h1>#}
-{#                    <p>This is a template showcasing the optional theme stylesheet included in Bootstrap. Use it as a starting point to create something more unique by building on or modifying it.</p>#}
-{#                </div>#}
+            <!---------------------------------Main Content---------------------------------->
+            <div class="container-fluid" role="main">
                 <div class="row">
-
-                    <div class="side-menu col-lg-2">
+                    <!---------------------------------Side Menu---------------------------------->
+                    <div class="side-menu col-lg-2 col-md-2 col-sm-3 col-xs-6">
                         <div class="panel panel-primary">
-                            <div class="panel-heading">User</div>
+                            <div class="panel-heading bold">User</div>
                             <div class="panel-body">
-                                <p>Current Logged In User Name</p>
+                                <p>Currently Logged In:</p>
+                                <p class="badge">{{ current_user.email or None }}</p>
                             </div>
-{#                            <div class="panel-footer">HZ</div>#}
+                            {% if current_user.is_authenticated() %}
+                            <div class="panel-footer"><a class="btn btn-primary" href="{{ url_for_security('logout') }}">Log Out</a></div>
+                            {% endif %}
                         </div>
 
                         <div class="panel panel-danger">
-                            <div class="panel-heading">On</div>
+                            <div class="panel-heading bold">Machine</div>
                             <div class="panel-body">
-                                <p>Currently Connected Machine Name</p>
-                                <p>Local</p>
+                                <p>Currently Connected On:</p>
+                                <p class="badge">{{ session.machine or 'Local' }}</p>
                             </div>
-                            {#                            <div class="panel-footer">HZ</div>#}
                         </div>
                     </div>
 
-                    <div class="main-content col-lg-10">
+                    <!---------------------------------Main Body---------------------------------->
+                    <div class="main-content col-lg-10 col-md-10 col-sm-9 col-xs-6">
                         <div>
                             {% with messages = get_flashed_messages() %}
                                 {% if messages %}
@@ -235,6 +197,7 @@
                         </div>
 
                         {% block content %}
+                            <!---------------------------------Override Block---------------------------------->
                         {% endblock content %}
                     </div>
 
@@ -242,11 +205,13 @@
             </div>
 
 
+            <!---------------------------------Fixed Footer---------------------------------->
             <footer class="footer">
                 <div class="container">
                     <p class="text-muted">&copy; HZ</p>
                 </div>
             </footer>
+
             <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
             <script type="text/javascript" src="{{ url_for('static', filename='js/jquery1.11.2.js') }}"></script>
             <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -255,6 +220,7 @@
 
 
             <script type="text/javascript">
+                //Carousel Code
                 $(document).ready(function(){
                   $('.orbit-container').slick({
                       autoplay: true,
