@@ -449,7 +449,9 @@ def longtask():
     if request.form['project_type'] == 'PrismERP':
         task = PrismERPDeploy.apply_async([request.form['project_id']])
     else:
-        task = long_task.apply_async([request.form['project_id']])
+        pass
+        #put Core4 or other type product deploy system here
+        #task = long_task.apply_async([request.form['project_id']])
 
     #insert the celery task id in db of project for future reference
     project = Project.query.get(request.form['project_id'])
@@ -475,10 +477,14 @@ def taskstatus(task_id):
     elif task.state != 'FAILURE':
         response = {
             'state': task.state,
-            'status': task.info.get('status', '')
+            'status': task.info.get('status', ''),
         }
         if 'result' in task.info:
             response['result'] = task.info['result']
+        if 'cmd' in task.info:
+            response['cmd'] = task.info['cmd']
+            response['output'] = task.info['output']
+
     else:
         # something went wrong in the background job
         response = {
@@ -488,7 +494,7 @@ def taskstatus(task_id):
     return jsonify(response)
 
 
-# The CELERY LONG TASK
+# The CELERY LONG TASK example
 @celery_obj.task(bind=True)
 def long_task(self, project_id):
     import random, time, threading
@@ -518,15 +524,17 @@ def f():
 @celery_obj.task(bind=True)
 def PrismERPDeploy(self, project_id):
 
-    import threading, time, os, random
+    import threading, time, os, random, Queue
     from fabfile.fabfile import local_deploy
 
     project = Project.query.get(project_id)
     tasks = [
         #['CheckOut', local_deploy.checkout],
-        ['Static File Minification', local_deploy.change_static_to_pro],
+        #['Static File Minification', local_deploy.change_static_to_pro],
         #['Database Creation', local_deploy.create_db],
-        ['Deployment Setting Change', local_deploy.change_settings]
+        #['Deployment Setting Change', local_deploy.change_settings],
+        ['Apache Vhost Add', local_deploy.create_vhost],
+        ['Server Restart', local_deploy.server_restart]
     ]
 
     completed_tasks = 0
@@ -546,7 +554,7 @@ def PrismERPDeploy(self, project_id):
     changes_dict = {
         'INTERNAL_NAME': '\'prism\'',
         'PRODUCT_NAME': '\'Sphere\'',
-        'PRODUCT_TITLE': '\'Lines\'',
+        'PRODUCT_TITLE': '\'LinesPay\'',
         'DEBUG': 'False',
         'PRODUCTION': 'True',
         # 'DIVINEMAIL_IP' : '',
@@ -557,14 +565,20 @@ def PrismERPDeploy(self, project_id):
         'COMPANY_NAME': '\'HZ\''
     }
 
+    apache_conf_file_path = 'D:\\works\\httpd.conf'
+
     args_list = [
-        #[project.vcs_repo, project.project_dir],
-        [os.path.join(project.project_dir, 'public', 'static')],
-        #[project.mysql_db_name, sql_paths],
-        [project.project_dir, changes_dict]
+        #[project.vcs_repo, project.project_dir,'',''],
+        #[os.path.join(project.project_dir, 'public', 'static')],
+        #[project.mysql_db_name, sql_paths, 'root', '', 'localhost'],
+        #[project.project_dir, changes_dict],
+        [apache_conf_file_path, project.project_dir, project.instance_port],
+        []
     ]
 
     for i in range(len(tasks)):
+        q = Queue.Queue()
+        args_list[i].append(q)
         t = threading.Thread(target=tasks[i][1], args=args_list[i])
         current_task = tasks[i][0]
         phrases = [
@@ -583,23 +597,31 @@ def PrismERPDeploy(self, project_id):
                     'status': random.choice(phrases)
                 }
             )
-
+        t.join()
+        result = q.get()
         completed_tasks += 1
 
         self.update_state(
             state='PROGRESS',
             meta={
-                'status': phrases[0]
+                'status': 'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks))),
+                'cmd': result['cmd'],
+                'output': result['out'].split('\n')
             }
         )
+        time.sleep(3)
 
-        time.sleep(4)
+    time.sleep(3)
+    self.update_state(state='PROGRESS', meta={'status': 'Finishing Deployment Process.....'})
+    time.sleep(4)
 
     project.is_deployed = 1
     db.session.commit()
 
     return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!'}
 
+
+# Async Email sending
 # Setup the task
 @celery_obj.task
 def send_security_email(msg):

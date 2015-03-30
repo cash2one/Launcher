@@ -79,10 +79,18 @@ function update_progress(status_url, spinner, message) {
         }
         else {
             $(message).text(data['status']);
+            console.log(data);
+            if (data['cmd'] && data['output']){
+
+                $('<p class="command"></p>').text('$~> ' + data.cmd).appendTo('div.terminal');
+                for (each in data.output) {
+                    $('<p class="output"></p>').text(data.output[each]).appendTo('div.terminal');
+                }
+            }
             // rerun in 1-2 seconds
             setTimeout(function () {
                 update_progress(status_url, spinner, message);
-            }, 1000);
+            }, 2000);
         }
     }
     );

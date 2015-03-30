@@ -69,7 +69,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/project_deploy.js') }}"></script>
     <script type='text/javascript'>
         $(document).ready(function () {
-            var spinner = $('<img src="/static/imgs/ajax-loader.gif" width="75" class="center-block"/>');
+            var spinner = $('<img src="/static/imgs/waiting.gif" width="100" class="center-block"/>');
             var message = $('<h3 class="well well-lg center-block">Starting.....</h3>');
 
             var project_state = '{{ project_status }}';

@@ -94,7 +94,8 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user"></span> Users <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('users_list') }}"><span class="fa fa-users"></span> List of Users</a></li>
-                                    <li><a href="{{ url_for('user_add') }}"><span class="fa fa-user-plus"></span> Add New User</a></li>i>#}
+{#                                    <li><a href="{{ url_for('user_add') }}"><span class="fa fa-user-plus"></span> Assign Roles</a></li>#}
+{#                                    <li><a href="{{ url_for('user_add') }}"><span class="fa fa-remove"></span> Delete User</a></li>#}
                                 </ul>
                             </li>
                             {% endif %}
@@ -123,9 +124,9 @@
                             {% endif %}
 
                             {% if current_user.is_authenticated() %}
-                            <li><a href="{{ url_for_security('logout') }}"><span class="fa fa-key"></span> Log Out</a></li>
+                            <li><a href="{{ url_for_security('logout') }}"><span class="fa fa-lock"></span> Log Out</a></li>
                             {% else %}
-                            <li><a href="{{ url_for_security('login') }}"><span class="fa fa-lock"></span> Log In</a></li>
+                            <li><a href="{{ url_for_security('login') }}"><span class="fa fa-key"></span> Log In</a></li>
                             <li><a href="{{ url_for_security('register') }}"><span class="fa fa-plug"></span> Register</a></li>
                             {% endif %}
                         </ul>
