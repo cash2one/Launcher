@@ -459,7 +459,7 @@ def longtask():
     db.session.commit()
 
     #return empty data, status, and request header to ajaj
-    return jsonify({}), 202, {'Location': url_for('taskstatus',task_id=task.id)}
+    return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=task.id)}
 
 
 # Get ajaj response of the current long running task
@@ -474,6 +474,7 @@ def taskstatus(task_id):
             'state': task.state,
             'status': 'Pending...'
         }
+    # All except failure....
     elif task.state != 'FAILURE':
         response = {
             'state': task.state,
@@ -482,6 +483,7 @@ def taskstatus(task_id):
         if 'result' in task.info:
             response['result'] = task.info['result']
         if 'cmd' in task.info:
+            print 'cmd out here', task.info
             response['cmd'] = task.info['cmd']
             response['output'] = task.info['output']
 
@@ -494,7 +496,7 @@ def taskstatus(task_id):
     return jsonify(response)
 
 
-# The CELERY LONG TASK example
+# The CELERY LONG TASK Test
 @celery_obj.task(bind=True)
 def long_task(self, project_id):
     import random, time, threading
@@ -572,7 +574,7 @@ def PrismERPDeploy(self, project_id):
         #[os.path.join(project.project_dir, 'public', 'static')],
         #[project.mysql_db_name, sql_paths, 'root', '', 'localhost'],
         #[project.project_dir, changes_dict],
-        [apache_conf_file_path, project.project_dir, project.instance_port],
+        [apache_conf_file_path, project.project_dir, str(project.instance_port)],
         []
     ]
 
@@ -600,7 +602,7 @@ def PrismERPDeploy(self, project_id):
         t.join()
         result = q.get()
         completed_tasks += 1
-
+        print result['cmd'], result['out'].split('\n')
         self.update_state(
             state='PROGRESS',
             meta={

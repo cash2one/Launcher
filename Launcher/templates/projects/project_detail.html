@@ -9,8 +9,8 @@
 {% block content %}
     <h3>Project Information</h3>
     <div class="panel panel-primary">
-        <div class="panel-heading">Project Name: {{ project.name }}</div>
-        <div class="panel-body">
+        <div class="panel-heading bold">Project Name: {{ project.name }}</div>
+        <div class="panel-body bold">
             <p>Client: {{ project.client_name }}</p>
             <p>Product Type: {{ project.product_type }}</p>
             <p>Project Location: {{ project.project_dir }}</p>
@@ -37,7 +37,7 @@
                 <p class="btn btn-danger">{{ project.server_id }}</p>
             {% else %}
 {#                {% if not project.is_deployed %}#}
-                    <a class="btn btn-danger" id="deploy">Deploy</a>
+                    <a class="btn btn-lg btn-danger" id="deploy">Deploy</a>
 {#                {% endif %}#}
             {% endif %}
         </div>
@@ -78,7 +78,7 @@
                 $('div#deployment').css('display','block');
                 $('<h1 class="panel-heading panel-success glyphicon glyphicon-ok"></h1>').text(' Success!').appendTo('div#deployment');
             }
-            else if (project_state=='STARTED') {
+            else if (project_state=='STARTED' || project_state == 'PENDING') {
                 $('div#deployment').css('display', 'block');
                 //re-append the completed task states div and continue ajaj request retrieval
                 $('#deployment').append(spinner);
@@ -95,6 +95,10 @@
                     $(this).hide();
                     project_deploy({{ project.id }}, '{{ project.product_type }}', spinner, message);
                 });
+            }
+            else if (project_state=='FAILURE' || project_state == 'HAULTED') {
+                $('div#deployment').css('display','block');
+                $('<h1 class="panel-heading panel-success glyphicon glyphicon-remove"></h1>').text(' Failure!').appendTo('div#deployment');
             }
         });
     </script>
