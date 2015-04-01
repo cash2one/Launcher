@@ -58,7 +58,6 @@
 
         <div class="shell-container">
             <div class="terminal">
-                <p class="command">$~> Terminal Ready!</p>
             </div>
         </div>
     </div>
@@ -69,7 +68,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/project_deploy.js') }}"></script>
     <script type='text/javascript'>
         $(document).ready(function () {
-            var spinner = $('<img src="/static/imgs/waiting.gif" width="100" class="center-block"/>');
+            var spinner = $('<img src="/static/imgs/loader.gif" width="100" class="center-block"/>');
             var message = $('<h3 class="well well-lg center-block">Starting.....</h3>');
 
             var project_state = '{{ project_status }}';
@@ -83,7 +82,7 @@
                 //re-append the completed task states div and continue ajaj request retrieval
                 $('#deployment').append(spinner);
                 $('#deployment').append(message);
-                $('div.window').css('display', 'block');
+                //$('div.window').css('display', 'block');
                 update_progress('/status/{{ project.celery_task_id }}', spinner, message);
 
             }
@@ -91,7 +90,7 @@
                 // button is shown, clicking on it starts ajaj
                 $('#deploy').click(function () {
                     $('div#deployment').css('display', 'block');
-                    $('div.window').css('display', 'block');
+                    //$('div.window').css('display', 'block');
                     $(this).hide();
                     project_deploy({{ project.id }}, '{{ project.product_type }}', spinner, message);
                 });

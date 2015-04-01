@@ -3,37 +3,14 @@
  */
 
 function project_deploy(project_id, project_type, spinner, message){
+
     start_long_task(project_id, project_type, spinner, message);
 
-//    $.getJSON('/prism_deploy',{project_id:project_id},function(){alert('Success');})
-
-//    $.getJSON('/task_execute', {
-//        cmd: 'ls -l'
-//    }, function (data) {
-//        $('<p class="command"></p>').text('$~> ' + data.cmd).appendTo('div.terminal');
-//        for (each in data.output) {
-//            $('<p class="output"></p>').text(data.output[each]).appendTo('div.terminal');
-//        }
-//    });
 }
 
 
 function start_long_task(project_id, project_type, spinner, message) {
-    // add task status elements
-    //div = $('<div><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
-    //spinner = $('<img src="/static/imgs/ajax-loader.gif" width="75" class="center-block"/>');
-    $('#deployment').append(spinner);
 
-    //message = $('<h3 class="well well-lg center-block">Status...</h3>');
-    $('#deployment').append(message);
-
-    // create a progress bar
-//    var nanobar = new Nanobar({
-//        bg: '#44f',
-//        target: div[0].childNodes[0]
-//    });
-
-    // send ajax POST request to start background job
     $.ajax({
         type: 'POST',
         url: '/longtask',
@@ -50,32 +27,29 @@ function start_long_task(project_id, project_type, spinner, message) {
     });
 }
 
+
 function update_progress(status_url, spinner, message) {
     // send GET request to status URL
     $.getJSON(status_url, function (data) {
-            //console.log(data);
-        // update UI
-        //percent = parseInt(data['current'] * 100 / data['total']);
-        //nanobar.go(percent);
-        //$(status_div.childNodes[1]).text(percent + '%');
-        //$(status_div.childNodes[2]).text(data['status']);
         if (data['state'] != 'PENDING' && data['state'] != 'INITIAL' && data['state'] != 'PROGRESS') {
             $(spinner).hide();
 
             if ('result' in data) {
                 $(message).text(data['status']);
                 // show result
-                //$(status_div.childNodes[3]).text('Result: ' + data['result']);
                 $('<p class="btn btn-info"></p>').text('Result: ' + data['result']).appendTo('#deployment');
                 $('div.panel-footer').hide();
 
             }
             else {
                 // something unexpected happened
-                //$(status_div.childNodes[3]).text('Result: ' + data['state']);
-                $('<p class="btn btn-info"></p>').text('Result: ' + data['result']).appendTo('#deployment');
+                $('<p class="btn btn-info"></p>').text('Result: ' + data['state']).appendTo('#deployment');
                 $('div.panel-footer').hide();
             }
+
+            // show the log in terminal window
+            show_log(data);
+
         }
         else {
             $(message).text(data['status']);
@@ -93,4 +67,25 @@ function update_progress(status_url, spinner, message) {
         }
     }
     );
+}
+
+
+function show_log(data){
+    $('div.window').css('display', 'block');
+    for (var i in data['log']) {
+        if ($.isArray(data['log'][i][0])) {
+            for (var j in data['log'][i]) {
+                $('<p class="command"></p>').text('$~> ' + data['log'][i][j][0]).appendTo('div.terminal');
+                for (var each in data['log'][i][j][1]) {
+                    $('<p class="output"></p>').text(data['log'][i][j][1][each]).appendTo('div.terminal');
+                }
+            }
+        }
+        else {
+            $('<p class="command"></p>').text('$~> ' + data['log'][i][0]).appendTo('div.terminal');
+            for (var each in data['log'][i][1]) {
+                $('<p class="output"></p>').text(data['log'][i][1][each]).appendTo('div.terminal');
+            }
+        }
+    }
 }

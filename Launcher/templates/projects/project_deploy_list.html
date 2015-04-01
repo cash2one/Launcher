@@ -4,43 +4,55 @@
 
 {% block content %}
 
-    <table class="table table-bordered table-hover table-responsive container-fluid">
-        <caption>Projects</caption>
-        <thead>
-            <tr class="row text-center">
-                <td>Project No</td>
-                <td>Project Name</td>
-                <td>Client Name</td>
-                <td>Product Type</td>
-                <td>Server</td>
-                <td>Instance Port</td>
-                <td>Project Directory</td>
-                <td>VCS Tool</td>
-                <td>VCS Repository URL</td>
-                <td>Database Name</td>
-                <td>Status</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for project in projects %}
-                <tr class="row text-center">
-                    <td>{{ project.id }}</td>
-                    <td>{{ project.name }}</td>
-                    <td>{{ project.client_name }}</td>
-                    <td>{{ project.product_type }}</td>
-                    <td>{{ project.server_id }}</td>
-                    <td>{{ project.instance_port }}</td>
-                    <td>{{ project.project_dir }}</td>
-                    <td>{{ project.vcs_tool }}</td>
-                    <td>{{ project.vcs_repo }}</td>
-                    <td>{{ project.mysql_db_name }}</td>
-                    {% if project.is_deployed %}
-                    <td>Deployed</td>
-                    {% else %}
-                    <td><a href="{{ url_for('deploy_project', project_id=project.id) }}" class="btn btn-danger">Deploy?</a></td>
-                    {% endif %}
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-hover table-responsive">
+            <caption>Projects</caption>
+            <thead>
+                <tr class="row text-center bold">
+                    <td>Project No</td>
+                    <td>Project Name</td>
+                    <td>Client Name</td>
+                    <td>Product Type</td>
+                    <td>Server</td>
+                    <td>Instance Port</td>
+                    <td>Project Directory</td>
+                    <td>VCS Tool</td>
+                    <td>VCS Repository URL</td>
+                    <td>Database Name</td>
+                    <td>Status</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                    <tr class="row text-center">
+                        <td>{{ project.id }}</td>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.client_name }}</td>
+                        <td>{{ project.product_type }}</td>
+                        <td>{{ project.server_id }}</td>
+                        <td>{{ project.instance_port }}</td>
+                        <td>{{ project.project_dir }}</td>
+                        <td>{{ project.vcs_tool }}</td>
+                        <td>{{ project.vcs_repo }}</td>
+                        <td>{{ project.mysql_db_name }}</td>
+                        {% if project.is_deployed %}
+                        <td>Deployed</td>
+                        {% else %}
+                        <td><a href="{{ url_for('deploy_project', project_id=project.id) }}" class="btn btn-danger">Deploy?</a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
 {% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.table').dataTable();
+        });
+    </script>
+{% endblock js %}

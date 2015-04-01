@@ -3,30 +3,41 @@
 {% block title %}Products List{% endblock title %}
 
 {% block content %}
+    <div class="table-responsive">
 
-    <table class="table table-bordered table-hover table-responsive container-fluid">
-        <caption>Products list</caption>
-        <thead>
-            <tr class="row text-center">
-                <td>Product No</td>
-                <td>Product Name</td>
-                <td>Language</td>
-                <td>Framework</td>
-                <td>Deploy Steps</td>
-                <td>Maintain Steps</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-                <tr class="row text-center">
-                    <td>{{ product.id }}</td>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.language }}</td>
-                    <td>{{ product.framework }}</td>
-                    <td>{{ product.deploy_steps }}</td>
-                    <td>{{ product.maintain_steps }}</td>
+        <table class="table table-bordered table-hover table-responsive">
+            <caption>Products list</caption>
+            <thead>
+                <tr class="row text-center bold">
+                    <td>Product No</td>
+                    <td>Product Name</td>
+                    <td>Language</td>
+                    <td>Framework</td>
+                    <td>Deploy Steps</td>
+                    <td>Maintain Steps</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr class="row text-center">
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.language }}</td>
+                        <td>{{ product.framework }}</td>
+                        <td>{{ product.deploy_steps }}</td>
+                        <td>{{ product.maintain_steps }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
 {% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.table').dataTable();
+        });
+    </script>
+{% endblock js %}

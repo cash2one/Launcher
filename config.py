@@ -14,9 +14,10 @@ SECRET_KEY = 'you-will-never-guess'
 
 
 #Flask-Mail settings
-MAIL_USERNAME = 'hz.ce06@gmail.com'
-MAIL_PASSWORD = 'Jle8alll'
-MAIL_DEFAULT_SENDER = ''
+MAIL_USERNAME = 'palash@divine-it.net'
+MAIL_PASSWORD = 'hpkjhulvnhekbdmz'
+#MAIL_PASSWORD = '1234'
+#MAIL_DEFAULT_SENDER = ''
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 465
 MAIL_USE_SSL = True
@@ -36,8 +37,8 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 #SYS_ADMINS = ['foo@example.com']
 
 # Flask-Security setup
-SECURITY_EMAIL_SENDER = 'HZ < hz.ce06@gmail.com >'
-SECURITY_LOGIN_WITHOUT_CONFIRMATION = True
+SECURITY_EMAIL_SENDER = 'HZ < Admin >'
+SECURITY_LOGIN_WITHOUT_CONFIRMATION = False
 SECURITY_REGISTERABLE = True
 SECURITY_RECOVERABLE = True
 SECURITY_CHANGEABLE = True
@@ -47,6 +48,7 @@ SECUIRTY_POST_LOGIN = '/'
 SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
 # import uuid; salt = uuid.uuid4().hex
 SECURITY_PASSWORD_SALT = '2b8b74efc58e489e879810905b6b6d4dc6'
+SECURITY_UNAUTHORIZED_VIEW = '/page_not_serveable'
 
 # CACHE
 #CACHE_TYPE = 'simple'

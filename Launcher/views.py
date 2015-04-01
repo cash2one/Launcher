@@ -1,10 +1,11 @@
 __author__ = 'HZ'
 
-from .import app, db, celery_obj, security, mail
+from .import app, db, celery_obj, security, mail, user_datastore
 from flask import render_template, flash, request, redirect, url_for, jsonify, session
 
 from formalchemy import FieldSet
 from models import *
+from forms import *
 
 from flask.ext.security import login_required, roles_required, roles_accepted, current_user, url_for_security
 
@@ -16,7 +17,36 @@ def test():
     """Dummy route for testing site layout for dev purpose"""
     if current_user:
         print current_user.email
+
     return render_template('base.html')
+
+
+# ###########################################################################
+@app.route('/page_not_serveable')
+def access_denied():
+    """Custom Access Forbidden view"""
+    return render_template('403.html')
+
+
+# ###########################################################################
+@app.errorhandler(403)
+def page_not_serveable(e):
+    """Custom Access Forbidden view"""
+    return render_template('403.html'), 403
+
+
+# ###########################################################################
+@app.errorhandler(404)
+def page_not_found(e):
+    """Custom Forbidden view"""
+    return render_template('404.html'), 404
+
+
+# ###########################################################################
+@app.errorhandler(500)
+def server_error(e):
+    """Custom internal server error view"""
+    return render_template('500.html'), 500
 
 
 ############################################################################
@@ -307,12 +337,39 @@ def users_list():
 
 
 ###########################################################################
-@app.route('/user_add')
+@app.route('/user_role_assign', methods = ['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'mod')
-def user_add():
+def user_role_assign():
     """Add a new user, manually by Super Admin"""
-    return ''
+    user_role_form = UserRoleForm(request.form)
+
+    users = User.query.all()
+    roles = Role.query.all()
+    user_opts = [(each.email, each.email) for each in users]
+    roles_opts = [(each.name, each.name) for each in roles]
+    #print user_opts, roles_opts
+
+    user_role_form.user.choices = user_opts
+    user_role_form.roles.choices = roles_opts
+
+    if request.method == 'POST':
+        if user_role_form.validate_on_submit():
+            #user_id = user_role_form.user.data
+            #role_ids = user_role_form.roles.data
+            roles = user_role_form.roles.data
+            #print user_id, role_ids
+            for each in roles:
+                user = user_datastore.find_user(email=user_role_form.user.data)
+                role = user_datastore.find_role(each)
+                result = user_datastore.add_role_to_user(user, role)
+                db.session.commit()
+
+            flash('Successfully assigned Roles to the User.')
+        else:
+            flash('Form Validation Failed!')
+
+    return render_template('users/userrole.html', form=user_role_form)
 
 
 ###########################################################################
@@ -482,8 +539,9 @@ def taskstatus(task_id):
         }
         if 'result' in task.info:
             response['result'] = task.info['result']
+            response['log'] = task.info['log']
         if 'cmd' in task.info:
-            print 'cmd out here', task.info
+            #print 'cmd out here', task.info
             response['cmd'] = task.info['cmd']
             response['output'] = task.info['output']
 
@@ -524,17 +582,17 @@ def f():
 # ###########################################################################
 # Prism ERP deploy procedure
 @celery_obj.task(bind=True)
-def PrismERPDeploy(self, project_id):
+def localPrismERPDeploy(self, project_id):
 
     import threading, time, os, random, Queue
     from fabfile.fabfile import local_deploy
 
     project = Project.query.get(project_id)
     tasks = [
-        #['CheckOut', local_deploy.checkout],
-        #['Static File Minification', local_deploy.change_static_to_pro],
-        #['Database Creation', local_deploy.create_db],
-        #['Deployment Setting Change', local_deploy.change_settings],
+        # ['CheckOut', local_deploy.checkout],
+        # ['Static File Minification', local_deploy.change_static_to_pro],
+        # ['Database Creation', local_deploy.create_db],
+        ['Deployment Setting Change', local_deploy.change_settings],
         ['Apache Vhost Add', local_deploy.create_vhost],
         ['Server Restart', local_deploy.server_restart]
     ]
@@ -570,13 +628,15 @@ def PrismERPDeploy(self, project_id):
     apache_conf_file_path = 'D:\\works\\httpd.conf'
 
     args_list = [
-        #[project.vcs_repo, project.project_dir,'',''],
-        #[os.path.join(project.project_dir, 'public', 'static')],
-        #[project.mysql_db_name, sql_paths, 'root', '', 'localhost'],
-        #[project.project_dir, changes_dict],
+        # [project.vcs_repo, project.project_dir,'',''],
+        # [os.path.join(project.project_dir, 'public', 'static')],
+        # [project.mysql_db_name, sql_paths, 'root', '', 'localhost'],
+        [project.project_dir, changes_dict],
         [apache_conf_file_path, project.project_dir, str(project.instance_port)],
         []
     ]
+
+    result = []
 
     for i in range(len(tasks)):
         q = Queue.Queue()
@@ -600,27 +660,132 @@ def PrismERPDeploy(self, project_id):
                 }
             )
         t.join()
-        result = q.get()
+        result.append(q.get())
         completed_tasks += 1
-        print result['cmd'], result['out'].split('\n')
+
         self.update_state(
             state='PROGRESS',
             meta={
-                'status': 'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks))),
-                'cmd': result['cmd'],
-                'output': result['out'].split('\n')
+                'status': 'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks)))
+                # 'cmd': result['cmd'],
+                # 'output': result['out'].split('\n')
             }
         )
-        time.sleep(3)
+        time.sleep(2)
 
-    time.sleep(3)
     self.update_state(state='PROGRESS', meta={'status': 'Finishing Deployment Process.....'})
     time.sleep(4)
 
     project.is_deployed = 1
     db.session.commit()
+    #print result
+    #store log file in disk
 
-    return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!'}
+    return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!', 'log': result}
+
+
+# ###########################################################################
+# Prism ERP deploy procedure
+@celery_obj.task(bind=True)
+def PrismERPDeploy(self, project_id):
+    import threading, time, os, random, Queue
+    from fabfile.fabfile import remote_deploy
+
+    project = Project.query.get(project_id)
+    tasks = [
+        # ['Check Out', remote_deploy.checkout],
+        # ['Static File Minification', remote_deploy.change_static_to_pro],
+        # ['Database Creation', remote_deploy.create_db],
+        # ['Deployment Setting Change', remote_deploy.change_settings],
+        ['Apache Vhost Add', remote_deploy.create_vhost],
+        ['Server Restart', remote_deploy.server_restart]
+    ]
+
+    completed_tasks = 0
+
+    # Dummy Steps
+    self.update_state(state='INITIAL', meta={'status': 'Preparing to deploy......'})
+    time.sleep(4)
+    self.update_state(state='INITIAL', meta={'status': 'Gathering resources......'})
+    time.sleep(4)
+
+    sql_paths = [
+        os.path.altsep.join([project.project_dir, 'database', 'prism.sql']),
+        os.path.altsep.join([project.project_dir, 'database', 'sphere.sql']),
+        os.path.altsep.join([project.project_dir, 'database', 'lines.sql'])
+    ]
+
+    changes_dict = {
+        'INTERNAL_NAME': '\'prism\'',
+        'PRODUCT_NAME': '\'Sphere\'',
+        'PRODUCT_TITLE': '\'LinesPay\'',
+        'DEBUG': 'False',
+        'PRODUCTION': 'True',
+        # 'DIVINEMAIL_IP' : '',
+        '\'NAME\':': '\'testdb\',',
+        '\'USER\':': '\'HUZR\',',
+        '\'PASSWORD\':': '\'123\',',
+        'BIRTVIEWER_DIR': '\'D:\\\\birt\\\\\'',
+        'COMPANY_NAME': '\'HZ\''
+    }
+
+    apache_conf_file_path = '/etc/httpd/conf/httpd.conf'
+    machine = Machine.query.get(1)
+
+    args_list = [
+        # [project.vcs_repo, project.project_dir,'palash','P@@slash'],
+        # [os.path.altsep.join([project.project_dir, 'public', 'static'])],
+        # [project.mysql_db_name, sql_paths, machine.mysql_username, machine.mysql_password, 'localhost'],
+        # [project.project_dir, changes_dict],
+        [apache_conf_file_path, project.project_dir, str(project.instance_port)],
+        []
+    ]
+
+    result = []
+
+    for i in range(len(tasks)):
+        q = Queue.Queue()
+        args_list[i].append(q)
+        t = threading.Thread(target=tasks[i][1], args=args_list[i])
+        current_task = tasks[i][0]
+        phrases = [
+            'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks))),
+            'Executing Task: {}.....'.format(current_task),
+            'Project Deployment in progress at step {}....'.format(str(i + 1))
+        ]
+
+        t.start()
+
+        while t.isAlive():
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'status': random.choice(phrases)
+                }
+            )
+        t.join()
+        result.append(q.get())
+        completed_tasks += 1
+
+        self.update_state(
+            state='PROGRESS',
+            meta={
+                'status': 'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks)))
+                # 'cmd': result['cmd'],
+                # 'output': result['out'].split('\n')
+            }
+        )
+        time.sleep(2)
+
+    self.update_state(state='PROGRESS', meta={'status': 'Finishing Deployment Process.....'})
+    time.sleep(4)
+
+    project.is_deployed = 1
+    db.session.commit()
+    #print result
+    #store log file in disk
+
+    return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!', 'log': result}
 
 
 # Async Email sending
@@ -629,7 +794,8 @@ def PrismERPDeploy(self, project_id):
 def send_security_email(msg):
     # Use the Flask-Mail extension instance to send the incoming ``msg`` parameter
     # which is an instance of `flask_mail.Message`
-    mail.send(msg)
+    with app.app_context():
+        mail.send(msg)
 
 @security.send_mail_task
 def delay_security_email(msg):

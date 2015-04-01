@@ -14,9 +14,8 @@ db = SQLAlchemy(app)
 # Initialize Flask-Mail
 mail = Mail(app)
 
-
-from models import User, Role
 # Setup Flask-Security
+from models import User, Role
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Role{% endblock title %}
+
+{% block content %}
+    {% from '_macros.html' import render_field_with_errors, render_checkbox %}
+
+    <form action="{{ url_for('user_role_assign') }}" role="form" method="post">
+        {{ form.csrf_token }}
+        <div class="form-group">
+        {{ render_field_with_errors(form.user, class_='form-control') }}
+        </div>
+        <div class="checkbox">
+            <label>
+                <p class="bold">Roles:</p>
+                {{ render_checkbox(form.roles) }}
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">Assign</button>
+    </form>
+{% endblock content %}
+

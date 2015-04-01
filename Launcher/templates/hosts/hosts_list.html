@@ -5,13 +5,16 @@
 {% block content %}
 
     <div>
-        <a href="{{ url_for('host_add') }}" class="btn btn-default fa fa-plus"> Add New Sever</a>
+        <a href="{{ url_for('host_add') }}" class="fa fa-plus btn btn-success btn-lg"> Add New Sever</a>
     </div>
 
-    <table class="table table-bordered table-hover table-responsive container-fluid">
-        <caption>Hosts list</caption>
-        <thead>
-            <tr class="row text-center">
+    <br/>
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-hover">
+            <caption>Hosts list</caption>
+            <thead>
+            <tr class="row text-center bold">
                 <td>Host No</td>
                 <td>Host Name</td>
                 <td>Host IP</td>
@@ -22,8 +25,8 @@
                 <td>MySQL Username</td>
                 <td>MySQL Password</td>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             {% for host in hosts %}
                 <tr class="row text-center">
                     <td>{{ host.id }}</td>
@@ -37,6 +40,16 @@
                     <td>{{ host.mysql_password }}</td>
                 </tr>
             {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+
+    </div>
 {% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.table').dataTable();
+        });
+    </script>
+{% endblock js %}
