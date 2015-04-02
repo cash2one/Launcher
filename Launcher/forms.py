@@ -57,8 +57,14 @@ class TaskAddForm(Form):
 
 class UserRoleForm(Form):
     """Form for assigning roles to an User"""
-    user = SelectField(label='User', coerce=str)
+    user = SelectField(label='Select an User:', coerce=str)
     roles = MultiCheckboxField(label='Roles', coerce=str)
+
+
+class RoleCreateForm(Form):
+    """Form for creating new roles for users"""
+    name = StringField(label='Name of the role:', validators=[validators.DataRequired('Must give a role name')])
+    description = StringField(label='Enter a description of the role:', validators=[validators.DataRequired('Must describe the role (eg Administrator, Moderator)...This will be shown when assigning role')])
 
 
 class ServerMachineAddForm(Form):
@@ -71,3 +77,11 @@ class ServerMachineAddForm(Form):
     ssh_port = IntegerField(label='SSH Port', validators=[validators.data_required])
     mysql_username = StringField(label='MySQL Username', validators=[validators.data_required])
     mysql_password = PasswordField(label='MySQL Password', validators=[validators.data_required])
+
+
+class ProfileEditForm(Form):
+    """Form for modifying profile info"""
+    display_name = StringField(label='Display Name to be shown after login:')
+    full_name = StringField(label='Your Full Name:')
+    svn_username = StringField(label='Your SVN Username: (Do not enter credentials unless needed)')
+    svn_password = PasswordField(label='Your SVN Password: (Do not enter credentials unless needed)')

@@ -4,6 +4,9 @@
 
 {% block content %}
     <div class="jumbotron">
+        {% if not current_user.is_authenticated() %}
+        <h2 class="well">Please, <a href="{{ url_for_security('login') }}" class="btn btn-warning btn-lg">Log in</a> to continue with......</h2>
+        {% endif %}
         <h1>Launcher</h1>
         <p>System Administration Automation</p>
         <ul>

@@ -98,7 +98,7 @@
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="{{ url_for('users_list') }}"><span class="fa fa-users"></span> List of Users</a></li>
                                     <li><a href="{{ url_for('user_role_assign') }}"><span class="fa fa-user-plus"></span> Assign Roles</a></li>
-{#                                    <li><a href="{{ url_for('user_add') }}"><span class="fa fa-remove"></span> Delete User</a></li>#}
+                                    <li><a href="{{ url_for('user_role_create') }}"><span class="fa fa-plus-circle"></span> Create Role</a></li>
                                 </ul>
                             </li>
                             {% endif %}
@@ -167,12 +167,12 @@
             <div class="container-fluid" role="main">
                 <div class="row">
                     <!---------------------------------Side Menu---------------------------------->
-                    <div class="side-menu col-lg-2 col-md-2 col-sm-3 col-xs-6">
+                    <div class="side-menu col-lg-2 col-md-2 col-sm-3 col-xs-4">
                         <div class="panel panel-primary">
                             <div class="panel-heading bold">User</div>
                             <div class="panel-body">
                                 <p>Currently Logged In:</p>
-                                <p class="badge">{{ current_user.email or None }}</p>
+                                <p class="badge">{{ current_user.display_name or current_user.email or None }}</p>
                             </div>
                             {% if current_user.is_authenticated() %}
                             <div class="panel-footer"><a class="btn btn-primary" href="{{ url_for_security('logout') }}">Log Out</a></div>
@@ -189,12 +189,12 @@
                     </div>
 
                     <!---------------------------------Main Body---------------------------------->
-                    <div class="main-content col-lg-10 col-md-10 col-sm-9 col-xs-6">
+                    <div class="main-content col-lg-10 col-md-10 col-sm-9 col-xs-8">
                         <div>
                             {% with messages = get_flashed_messages() %}
                                 {% if messages %}
                                     {% for message in messages %}
-                                        <p class="alert alert-danger flash fa fa-flash"> {{ message }}</p>
+                                        <h3 class="alert alert-danger flash"><span class="fa fa-flash "></span> {{ message }}</h3>
                                     {% endfor %}
                                 {% endif %}
                             {% endwith %}

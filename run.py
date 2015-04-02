@@ -3,4 +3,10 @@ __author__ = 'HZ'
 
 from Launcher import app
 
-app.run(host='127.0.0.1', port=5000, debug=True)
+import netifaces as ni
+ip = ni.ifaddresses(ni.gateways()[2][0][1])[2][0]['addr']
+
+try:
+    app.run(host=ip, port=5000, debug=True)
+except:
+    app.run(host='127.0.0.1', port=5000, debug=True)

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock title %}
+
+{% block content %}
+
+    <h2>My Profile:</h2>
+
+    <div class="panel panel-info">
+        <div class="panel-heading bold">Basic Info</div>
+        <div class="panel-body">
+            <p><span class="bold">Registered Email: </span><br/>{{ user.email }}</p>
+            <p><span class="bold">Last Login at: </span><br/>{{ user.last_login_at }}</p>
+        </div>
+    </div>
+
+
+    <h4 class="text-danger underline">Change the following details:</h4>
+    <hr/>
+    {% from '_macros.html' import render_field_with_errors, render_field %}
+    <form method="POST" action="{{ url_for('profile_edit') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ render_field_with_errors(form.display_name, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.full_name, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.svn_username, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.svn_password, class_='form-control') }}
+        </div>
+        <hr/>
+        <button type="submit" class="btn btn-danger btn-lg">Submit Changes</button>
+
+    </form>
+
+{% endblock content %}
+

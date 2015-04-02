@@ -116,3 +116,17 @@ code {
 .bold{
     font-weight: bold;
 }
+
+.underline{
+    text-decoration: underline;
+}
+
+.badge{
+    -ms-word-wrap: break-word !important;
+    word-wrap: break-word !important;
+    /*-moz-display: stack;*/
+    display: inline;
+    display: -moz-stack;
+
+    white-space: normal;
+}

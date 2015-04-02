@@ -15,9 +15,6 @@ from flask.ext.security import login_required, roles_required, roles_accepted, c
 @login_required
 def test():
     """Dummy route for testing site layout for dev purpose"""
-    if current_user:
-        print current_user.email
-
     return render_template('base.html')
 
 
@@ -52,9 +49,9 @@ def server_error(e):
 ############################################################################
 @app.route('/')
 @app.route('/index')
-#@login_required
 def index():
     """Site root, Index view, Dashboard"""
+
     return render_template('index.html')
 
 
@@ -341,35 +338,57 @@ def users_list():
 @login_required
 @roles_accepted('admin', 'mod')
 def user_role_assign():
-    """Add a new user, manually by Super Admin"""
+    """Add a new user role, manually by Super Admin"""
     user_role_form = UserRoleForm(request.form)
 
     users = User.query.all()
     roles = Role.query.all()
     user_opts = [(each.email, each.email) for each in users]
-    roles_opts = [(each.name, each.name) for each in roles]
-    #print user_opts, roles_opts
+    roles_opts = [(each.name, each.description) for each in roles]
 
     user_role_form.user.choices = user_opts
     user_role_form.roles.choices = roles_opts
 
     if request.method == 'POST':
         if user_role_form.validate_on_submit():
-            #user_id = user_role_form.user.data
-            #role_ids = user_role_form.roles.data
             roles = user_role_form.roles.data
-            #print user_id, role_ids
             for each in roles:
                 user = user_datastore.find_user(email=user_role_form.user.data)
                 role = user_datastore.find_role(each)
                 result = user_datastore.add_role_to_user(user, role)
-                db.session.commit()
 
-            flash('Successfully assigned Roles to the User.')
+            db.session.commit()
+
+            flash('Successfully assigned Roles to the User: ' + user_role_form.user.data)
+            return redirect(url_for('user_role_assign'))
         else:
             flash('Form Validation Failed!')
 
     return render_template('users/userrole.html', form=user_role_form)
+
+
+# ##########################################################################
+@app.route('/user_role_create', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def user_role_create():
+    """Add a new role, manually by Super Admin"""
+    role_create_form = RoleCreateForm(request.form)
+
+    if request.method == 'POST':
+        if role_create_form.validate_on_submit():
+            role_name = role_create_form.name.data
+            role_description = role_create_form.description.data
+
+            user_datastore.create_role(name=role_name, description=role_description)
+            db.session.commit()
+
+            flash('Successfully created the role...now it can be assigned to users.')
+            return redirect(url_for('user_role_create'))
+        else:
+            flash('Form Validation Failed!')
+
+    return render_template('users/role_create.html', form=role_create_form)
 
 
 ###########################################################################
@@ -416,11 +435,31 @@ def profile_view():
 
 
 ###########################################################################
-@app.route('/profile_edit')
+@app.route('/profile_edit', methods=['GET','POST'])
 @login_required
 def profile_edit():
     """Edit own profile"""
-    return ''
+    import base64
+
+    user = User.query.get(current_user.id)
+    profile_edit_form = ProfileEditForm(formdata=request.form, obj=user)
+
+    if request.method == 'POST':
+        if profile_edit_form.validate_on_submit():
+
+            user.display_name = profile_edit_form.display_name.data
+            user.full_name = profile_edit_form.full_name.data
+            user.svn_username = profile_edit_form.svn_username.data
+            user.svn_password = base64.encodestring(profile_edit_form.svn_password.data)
+
+            db.session.commit()
+
+            flash('Successfully updated profile info!')
+            return redirect(url_for('profile_edit'))
+        else:
+            flash('Form Validation Failed!!')
+
+    return render_template('users/profile_edit.html', user=user, form=profile_edit_form)
 
 
 ###########################################################################
