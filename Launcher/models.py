@@ -6,7 +6,7 @@ from flask_security import UserMixin, RoleMixin
 
 
 class Machine(db.Model):
-
+    """Server Machine model....remote host"""
     id = db.Column(db.Integer, primary_key=True)
     host_name = db.Column(db.Text)
     host_ip = db.Column(db.Text)
@@ -19,7 +19,7 @@ class Machine(db.Model):
 
 
 class Task(db.Model):
-
+    """Single Task model....to execute seperate command"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     description = db.Column(db.Text)
@@ -31,7 +31,7 @@ class Task(db.Model):
 
 
 class Product(db.Model):
-
+    """Products model....software products of office"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     language = db.Column(db.Text)
@@ -42,7 +42,7 @@ class Product(db.Model):
 
 
 class Project(db.Model):
-
+    """Project model.....to deploy a new project on a remote host"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     client_name = db.Column(db.Text)
@@ -66,11 +66,14 @@ roles_users = db.Table('roles_users',
         db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
 class Role(db.Model, RoleMixin):
+    """User role model"""
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+
 class User(db.Model, UserMixin):
+    """User model"""
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
@@ -90,3 +93,19 @@ class User(db.Model, UserMixin):
 
 
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+    msgs_sent = db.relationship('Message', backref=db.backref('owner', lazy='dynamic'), primaryjoin="User.id==Message.sender_id")
+    msgs_received = db.relationship('Message', backref=db.backref('receipient', lazy='dynamic'), primaryjoin="User.id==Message.receiver_id")
+
+
+class Message(db.Model):
+    """Message model....intercom test"""
+    id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.Text)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    receiver = db.Column(db.Text)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    subject_topic = db.Column(db.Text)
+    message_body = db.Column(db.Text)
+    sent_at = db.Column(db.Text)
+    read = db.Column(db.Boolean)
+

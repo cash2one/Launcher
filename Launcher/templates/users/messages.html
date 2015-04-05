@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Message Box{% endblock title %}
+
+{% block content %}
+
+    <div class="panel panel-info">
+        <div class="panel-heading bold"><i class="glyphicon glyphicon-pushpin"></i> Inbox</div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <caption>Message Received</caption>
+                    <thead>
+                        <tr class="row text-center bold">
+                            <td>Read?</td>
+                            <td>Sender</td>
+                            <td>Subject</td>
+                            <td>Sent At</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%- for each in current_user.msgs_received -%}
+                            {%- if each.read -%}
+                            <tr class="row text-center">
+                                <td><i class="glyphicon glyphicon-check"></i></td>
+                                <td>{{ each.owner.first().email }}</td>
+                                <td>{{ each.subject_topic }}</td>
+                                <td>{{ each.sent_at }}</td>
+                            </tr>
+                            {%- else -%}
+                            <tr class="row text-center bold">
+                                <td><i class="glyphicon glyphicon-hourglass"></i></td>
+                                <td>{{ each.owner.first().email }}</td>
+                                <td>{{ each.subject_topic }}</td>
+                                <td>{{ each.sent_at }}</td>
+                            </tr>
+                            {%- endif -%}
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-danger">
+        <div class="panel-heading bold"><i class="glyphicon glyphicon-pushpin"></i> Outbox</div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <caption>Message Sent</caption>
+                    <thead>
+                        <tr class="row text-center bold">
+                            <td>Seen?</td>
+                            <td>Receiver</td>
+                            <td>Subject</td>
+                            <td>Sent At</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%- for each in current_user.msgs_sent -%}
+                            {%- if each.read -%}
+                            <tr class="row text-center">
+                                <td><i class="glyphicon glyphicon-check"></i></td>
+                                <td>{{ each.receipient.first().email }}</td>
+                                <td>{{ each.subject_topic }}</td>
+                                <td>{{ each.sent_at }}</td>
+                            </tr>
+                            {%- else -%}
+                            <tr class="row text-center bold">
+                                <td><i class="glyphicon glyphicon-eye-close"></i></td>
+                                <td>{{ each.receipient.first().email }}</td>
+                                <td>{{ each.subject_topic }}</td>
+                                <td>{{ each.sent_at }}</td>
+                            </tr>
+                            {%- endif -%}
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.table').dataTable();
+        });
+    </script>
+{% endblock js %}
+

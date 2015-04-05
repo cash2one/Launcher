@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask.ext.security import Security, SQLAlchemyUserDatastore
 from celery import Celery
+from flask.ext.babel import Babel
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -13,6 +14,9 @@ db = SQLAlchemy(app)
 
 # Initialize Flask-Mail
 mail = Mail(app)
+
+#Initialize Flask-Babel
+babel = Babel(app)
 
 # Setup Flask-Security
 from models import User, Role

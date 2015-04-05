@@ -10,12 +10,25 @@
         <div class="panel-heading bold">Basic Info</div>
         <div class="panel-body">
             <p><span class="bold">Registered Email: </span><br/>{{ user.email }}</p>
-            <p><span class="bold">Last Login at: </span><br/>{{ user.last_login_at }}</p>
+            {% set last_login_at = user.last_login_at + DST %}
+            <p><span class="bold">Last Login at: </span><br/>{{ last_login_at.strftime('%B %d, %Y, %A, %I:%M:%S %p') }}</p>
         </div>
     </div>
 
+    <div class="panel panel-warning">
+        <div class="panel-heading bold">Roles Assigned</div>
+        <div class="panel-body">
+        {%- if user.roles -%}
+            {%- for each in user.roles %}
+            <p>{{ each.description }}</p>
+            {%- endfor %}
+        {%- else -%}
+            <a href="/" class="btn btn-success">Request to Administrator for Roles</a>
+        {%- endif -%}
+        </div>
+    </div>
 
-    <h4 class="text-danger underline">Change the following details:</h4>
+    <h4 class="text-danger underline">Changeable details:</h4>
     <hr/>
     {% from '_macros.html' import render_field_with_errors, render_field %}
     <form method="POST" action="{{ url_for('profile_edit') }}">
@@ -33,6 +46,7 @@
             {{ render_field_with_errors(form.svn_password, class_='form-control') }}
         </div>
         <hr/>
+        <p class="alert alert-danger">Do not click <kbd>Submit Changes</kbd> if you did not change anything</p>
         <button type="submit" class="btn btn-danger btn-lg">Submit Changes</button>
 
     </form>

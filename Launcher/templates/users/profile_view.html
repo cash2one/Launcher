@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}View Profile{% endblock title %}
+
+{% block content %}
+
+    <h2>My Profile:</h2>
+
+    <div class="panel panel-info">
+        <div class="panel-heading bold">Basic Info</div>
+        <div class="panel-body">
+            <p><span class="bold">Registered Email: </span><br/>{{ user.email }}</p>
+            {% set last_login_at = user.last_login_at + DST %}
+            <p><span class="bold">Last Login at: </span><br/>{{ last_login_at.strftime('%B %d, %Y, %A, %I:%M:%S %p') }}</p>
+        </div>
+    </div>
+
+    <div class="panel panel-warning">
+        <div class="panel-heading bold">Roles Assigned</div>
+        <div class="panel-body">
+        {%- if user.roles -%}
+            {%- for each in user.roles %}
+            <p>{{ each.description }}</p>
+            {%- endfor %}
+        {%- else -%}
+            <a href="/" class="btn btn-success">Request to Administrator for Roles</a>
+        {%- endif -%}
+        </div>
+    </div>
+
+    <div class="panel panel-success">
+        <div class="panel-heading bold">Other Info</div>
+        <div class="panel-body">
+            <p><span class="bold">Display Name: </span><br/>{{ user.display_name }}</p>
+            <p><span class="bold">Full Name: </span><br/>{{ user.full_name }}</p>
+            <p><span class="bold">SVN Credentials: </span><br/>{% if user.svn_username and user.svn_password %}Provided{% else %}Not Provided{% endif %}</p>
+        </div>
+    </div>
+
+    <a class="btn btn-warning btn-lg" href="{{ url_for('profile_edit') }}">Edit Profile</a>
+
+{% endblock content %}
+

@@ -4,6 +4,7 @@ __author__ = 'HZ'
 from Launcher import app
 
 import netifaces as ni
+#for nt
 ip = ni.ifaddresses(ni.gateways()[2][0][1])[2][0]['addr']
 
 try:

@@ -12,6 +12,8 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
+#Flask-Babel
+BABEL_DEFAULT_TIMEZONE = 'UTC+6:00'
 
 #Flask-Mail settings
 MAIL_USERNAME = 'palash@divine-it.net'

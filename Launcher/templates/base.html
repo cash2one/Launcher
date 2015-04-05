@@ -10,18 +10,18 @@
 
         <title>Launcher - {% block title %}{% endblock title %}</title>
 
-        <!-- Bootstrap -->
+        <!-- CSSs -->
 {#        <link rel="stylesheet" type="text/css" href="{{ ur }}">#}
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap-3.3.4/css/bootstrap.min.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome-4.3.0/css/font-awesome.min.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='slick-1.4.1/slick.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='slick-1.4.1/slick-theme.css') }}"/>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatables-1.10.5/css/jquery.dataTables.css') }}"/>
-{#        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatables-1.10.5/css/dataTables.bootstrap.css') }}"/>#}
-{#        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatables-1.10.5/css/dataTables.responsive.css') }}"/>#}
+{#-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatables-1.10.5/css/dataTables.bootstrap.css') }}"/>#}
+{#-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatables-1.10.5/css/dataTables.responsive.css') }}"/>#}
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/launcher.css') }}"/>
 
-        {% block css %}{% endblock css %}
+        {%- block css %}{%- endblock css %}
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -34,19 +34,19 @@
     <body role="document">
 
         <div class="">
-            <!-- Fixed navbar -->
+            <!------- Fixed navbar ------->
             <nav class="navbar navbar-default">
                 <div class="navigation-menu">
-                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <!------------ Brand and toggle get grouped for better mobile display -------------->
                     <div class="navbar-header">
-                        <!-- Mobile menu button -->
+                        <!---- Mobile menu button ---->
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                             <span class="sr-only">Toggle navigation</span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-{#                        <i class="glyphicon glyphicon-off"></i>#}
+                        <!---- Brand name and logo ---->
                         <a class="navbar-brand" href="/"><span class="fa fa-rocket"></span> Launcher </a>
                     </div>
 
@@ -58,7 +58,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class=""><a href="{{ url_for('index') }}"><span class="fa fa-dashboard"></span> Dashboard</a></li>
 
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-paperclip"></span> Projects <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
@@ -68,9 +68,9 @@
                                     <li><a href="{{ url_for('deploy_project_list') }}" class="fa fa-rocket"> Deploy a Project</a></li>
                                 </ul>
                             </li>
-                            {% endif %}
+                            {%- endif %}
 
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-shopping-cart"></span> Products <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
@@ -78,9 +78,9 @@
                                     <li><a href="{{ url_for('product_add') }}"><span class="fa fa-cart-plus"></span> Add New Product</a></li>
                                 </ul>
                             </li>
-                            {% endif %}
+                            {%- endif %}
 
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-tasks"></span> Tasks <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
@@ -90,9 +90,9 @@
                                     <li><a href="{{ url_for('cmd_execute') }}"><span class="fa fa-terminal"></span> &nbsp;&nbsp;Execute Command</a></li>
                                 </ul>
                             </li>
-                            {% endif %}
+                            {%- endif %}
 
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() and current_user.has_role('admin') %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user"></span> Users <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
@@ -101,9 +101,9 @@
                                     <li><a href="{{ url_for('user_role_create') }}"><span class="fa fa-plus-circle"></span> Create Role</a></li>
                                 </ul>
                             </li>
-                            {% endif %}
+                            {%- endif %}
 
-                            {% if current_user.is_authenticated() and current_user.has_role('admin') %}
+                            {%- if current_user.is_authenticated() and current_user.has_role('admin') %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                    aria-expanded="false"><span class="fa fa-desktop"></span> Host Machines <span
@@ -113,25 +113,26 @@
                                     <li><a href="{{ url_for('host_add') }}"><span class="fa fa-plus-square"></span> Add New Host</a></li>
                                 </ul>
                             </li>
-                            {% endif %}
+                            {%- endif %}
 
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-cog"></span> Settings <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{{ url_for('messages') }}"><span class="fa fa-envelope"></span> Messages</a></li>
                                     <li><a href="{{ url_for('profile_view') }}"><span class="fa fa-user-secret"></span> My Profile</a></li>
                                     <li><a href="{{ url_for('profile_edit') }}"><span class="fa fa-edit"></span> Edit Profile Information</a></li>
                                     <li><a href="{{ url_for_security('change_password') }}"><span class="fa fa-asterisk"></span> Change Password</a></li>
                                 </ul>
                             </li>
-                            {% endif %}
+                            {%- endif %}
 
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <li><a href="{{ url_for_security('logout') }}"><span class="fa fa-lock"></span> Log Out</a></li>
-                            {% else %}
+                            {%- else %}
                             <li><a href="{{ url_for_security('login') }}"><span class="fa fa-key"></span> Log In</a></li>
                             <li><a href="{{ url_for_security('register') }}"><span class="fa fa-plug"></span> Register</a></li>
-                            {% endif %}
+                            {%- endif %}
                         </ul>
                     </div><!-- /.navbar-collapse -->
                 </div><!-- /.container-fluid -->
@@ -169,36 +170,53 @@
                     <!---------------------------------Side Menu---------------------------------->
                     <div class="side-menu col-lg-2 col-md-2 col-sm-3 col-xs-4">
                         <div class="panel panel-primary">
-                            <div class="panel-heading bold">User</div>
+                            <div class="panel-heading bold"><span class="glyphicon glyphicon-user"></span> User Zone</div>
                             <div class="panel-body">
-                                <p>Currently Logged In:</p>
-                                <p class="badge">{{ current_user.display_name or current_user.email or None }}</p>
+                            {%- if current_user.is_authenticated() %}
+                                {%- if current_user.login_count > 1 %}
+                                <p>Welcome back:</p>
+                                {%- else %}
+                                <p>Welcome to the site:</p>
+                                {%- endif %}
+                                <a class="badge" href="{{ url_for('profile_view') }}">{{ current_user.display_name or current_user.email or None }}</a>
+                            {%- else %}
+                                <p>Please <a href="{{ url_for_security('login') }}" class="underline">Log In</a> or <a href="{{ url_for_security('register') }}" class="underline">Register</a></p>
+                            {%- endif %}
                             </div>
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <div class="panel-footer"><a class="btn btn-primary" href="{{ url_for_security('logout') }}">Log Out</a></div>
-                            {% endif %}
+                            {%- endif %}
                         </div>
-
-                        <div class="panel panel-danger">
-                            <div class="panel-heading bold">Machine</div>
+                        {%- if current_user.is_authenticated() %}
+                        <div class="panel panel-info">
+                            <div class="panel-heading bold"><span class="glyphicon glyphicon-envelope"></span> Messages</div>
                             <div class="panel-body">
-                                <p>Currently Connected On:</p>
-                                <p class="badge">{{ session.machine }}</p>
+                                <a class="btn btn-danger" href="{{ url_for('messages') }}">
+                                    Inbox <span class="badge">{{ current_user.msgs_received|length }}</span>
+                                </a>
+                                <br/>
+                                <br/>
+                                <a class="btn btn-success" href="{{ url_for('messages') }}">
+                                    Sent <span class="badge">{{ current_user.msgs_sent|length }}</span>
+                                </a>
                             </div>
                         </div>
+                        {%- endif %}
                     </div>
 
                     <!---------------------------------Main Body---------------------------------->
                     <div class="main-content col-lg-10 col-md-10 col-sm-9 col-xs-8">
+                    {%- if get_flashed_messages() %}
                         <div>
-                            {% with messages = get_flashed_messages() %}
-                                {% if messages %}
+                            {%- with messages = get_flashed_messages() %}
+                                {%- if messages %}
                                     {% for message in messages %}
                                         <h3 class="alert alert-danger flash"><span class="fa fa-flash "></span> {{ message }}</h3>
                                     {% endfor %}
-                                {% endif %}
-                            {% endwith %}
+                                {%- endif %}
+                            {%- endwith %}
                         </div>
+                    {%- endif %}
 
                         {% block content %}
                             <!---------------------------------Override Block---------------------------------->
@@ -223,8 +241,8 @@
             <script type="text/javascript" src="{{ url_for('static', filename='slick-1.4.1/slick.min.js') }}"></script>
             <script type="text/javascript" src="{{ url_for('static', filename='datatables-1.10.5/js/jquery.dataTables.js') }}"></script>
 
-{#            <script type="text/javascript" src="{{ url_for('static', filename='datatables-1.10.5/js/dataTables.responsive.js') }}"></script>#}
-{#            <script type="text/javascript" src="{{ url_for('static', filename='datatables-1.10.5/js/dataTables.bootstrap.js') }}"></script>#}
+{#-            <script type="text/javascript" src="{{ url_for('static', filename='datatables-1.10.5/js/dataTables.responsive.js') }}"></script>#}
+{#-            <script type="text/javascript" src="{{ url_for('static', filename='datatables-1.10.5/js/dataTables.bootstrap.js') }}"></script>#}
 
 
             <script type="text/javascript">

@@ -8,7 +8,8 @@ from models import *
 from forms import *
 
 from flask.ext.security import login_required, roles_required, roles_accepted, current_user, url_for_security
-
+from datetime import timedelta
+DST = timedelta(hours=6)
 
 ############################################################################
 @app.route('/preview')
@@ -330,6 +331,7 @@ def task_detail(task_id):
 @login_required
 def users_list():
     """List of all registered users of the web app"""
+
     return ''
 
 
@@ -403,7 +405,7 @@ def hosts_list():
 
 
 ###########################################################################
-@app.route('/host_add', methods=['GET','POST'])
+@app.route('/host_add', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'mod')
 def host_add():
@@ -431,11 +433,21 @@ def host_add():
 @login_required
 def profile_view():
     """View profile, self or other members"""
-    return ''
+    user = User.query.get(current_user.id)
+
+    msgs = user.msgs_received
+
+    for each in msgs:
+        for each1 in each.owner.all():
+            print each1.email
+        for each1 in each.receipient.all():
+            print each1.email
+
+    return render_template('users/profile_view.html', user=user, DST=DST, msgs=msgs)
 
 
 ###########################################################################
-@app.route('/profile_edit', methods=['GET','POST'])
+@app.route('/profile_edit', methods=['GET', 'POST'])
 @login_required
 def profile_edit():
     """Edit own profile"""
@@ -455,11 +467,17 @@ def profile_edit():
             db.session.commit()
 
             flash('Successfully updated profile info!')
-            return redirect(url_for('profile_edit'))
+            return redirect(url_for('profile_view'))
         else:
             flash('Form Validation Failed!!')
 
-    return render_template('users/profile_edit.html', user=user, form=profile_edit_form)
+    return render_template('users/profile_edit.html', user=user, DST=DST, form=profile_edit_form)
+
+@app.route('/message')
+@login_required
+def messages():
+
+    return render_template('users/messages.html')
 
 
 ###########################################################################
