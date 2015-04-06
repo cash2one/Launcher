@@ -1,7 +1,7 @@
 {# Render a Complete field with labels and errors #}
 {% macro render_field_with_errors(field) %}
   <p>
-    {{ field.label }} {{ field(**kwargs)|safe }}
+    {{ field.label(class_='control-label') }} {{ field(**kwargs)|safe }}
     {% if field.errors %}
       {% for error in field.errors %}
         <p class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> {{ error }}</p>

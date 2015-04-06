@@ -55,3 +55,6 @@ SECURITY_UNAUTHORIZED_VIEW = '/page_not_serveable'
 
 # CACHE
 #CACHE_TYPE = 'simple'
+
+#Debug mode
+DEBUG = True

@@ -9,13 +9,15 @@
 {% block content %}
     <h3>Project Information</h3>
     <div class="panel panel-primary">
-        <div class="panel-heading bold">Project Name: {{ project.name }}</div>
-        <div class="panel-body bold">
-            <p>Client: {{ project.client_name }}</p>
-            <p>Product Type: {{ project.product_type }}</p>
-            <p>Project Location: {{ project.project_dir }}</p>
-            <p>Project Repository: {{ project.vcs_repo }}</p>
-            <p>Project Database: mysql://{{ project.mysql_db_name }}</p>
+        <div class="panel-heading bold underline">
+            <h3>{{ project.name }}</h3>
+        </div>
+        <div class="panel-body">
+            <p class="bold underline">Client:</p><p>{{ project.client_name }}</p>
+            <p class="bold underline">Product Type:</p><p>{{ project.product_type }}</p>
+            <p class="bold underline">Project Directory:</p><p>{{ project.project_dir }}</p>
+            <p class="bold underline">Repository URL:</p><p>{{ project.vcs_repo }}</p>
+            <p class="bold underline">Database:</p><p>mysql:\\{{ project.mysql_db_name }}</p>
         </div>
 
 

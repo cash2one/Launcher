@@ -4,6 +4,12 @@
 
 {% block content %}
 
+    <!-- Small modal -->
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#msg-compose">Send New Message</button>
+
+    <br/>
+    <hr/>
+
     <div class="panel panel-info">
         <div class="panel-heading bold"><i class="glyphicon glyphicon-pushpin"></i> Inbox</div>
         <div class="panel-body">
@@ -21,15 +27,15 @@
                     <tbody>
                         {%- for each in current_user.msgs_received -%}
                             {%- if each.read -%}
-                            <tr class="row text-center">
+                            <tr class="row text-center msg" id="{{ each.id }}">
                                 <td><i class="glyphicon glyphicon-check"></i></td>
                                 <td>{{ each.owner.first().email }}</td>
                                 <td>{{ each.subject_topic }}</td>
                                 <td>{{ each.sent_at }}</td>
                             </tr>
                             {%- else -%}
-                            <tr class="row text-center bold">
-                                <td><i class="glyphicon glyphicon-hourglass"></i></td>
+                            <tr class="row text-center bold msg inbox" id="{{ each.id }}">
+                                <td class="inbox-read"><i class="glyphicon glyphicon-hourglass"></i></td>
                                 <td>{{ each.owner.first().email }}</td>
                                 <td>{{ each.subject_topic }}</td>
                                 <td>{{ each.sent_at }}</td>
@@ -59,14 +65,14 @@
                     <tbody>
                         {%- for each in current_user.msgs_sent -%}
                             {%- if each.read -%}
-                            <tr class="row text-center">
+                            <tr class="row text-center msg" id="{{ each.id }}">
                                 <td><i class="glyphicon glyphicon-check"></i></td>
                                 <td>{{ each.receipient.first().email }}</td>
                                 <td>{{ each.subject_topic }}</td>
                                 <td>{{ each.sent_at }}</td>
                             </tr>
                             {%- else -%}
-                            <tr class="row text-center bold">
+                            <tr class="row text-center bold msg" id="{{ each.id }}">
                                 <td><i class="glyphicon glyphicon-eye-close"></i></td>
                                 <td>{{ each.receipient.first().email }}</td>
                                 <td>{{ each.subject_topic }}</td>
@@ -80,6 +86,60 @@
         </div>
     </div>
 
+    <!--------------------------------------Modal Window for showing message---------------------------------->
+    <div class="modal fade" id="msg-read" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel"><i class="glyphicon glyphicon-envelope"></i> Message</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="bold underline">From: </p>
+                    <p class="sender text-info"></p>
+                    <p class="bold underline">To: </p>
+                    <p class="receiver text-warning"></p>
+                    <p class="bold underline">Date: </p><span class="date"></span>
+                    <hr/>
+                    <p class="bold underline">Message:</p>
+                    <p class="msg-body well"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------------------------Modal Window for composing message---------------------------------->
+    <div class="modal fade" id="msg-compose" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">New message</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">Recipient:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Message:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Send message</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 
@@ -87,7 +147,13 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.table').dataTable();
+
+            $('.table tr.msg').click(function (){
+                show_message(this);
+            });
         });
     </script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/message.js') }}"></script>
 {% endblock js %}
 

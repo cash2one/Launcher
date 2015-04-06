@@ -8,6 +8,7 @@ from models import *
 from forms import *
 
 from flask.ext.security import login_required, roles_required, roles_accepted, current_user, url_for_security
+
 from datetime import timedelta
 DST = timedelta(hours=6)
 
@@ -20,6 +21,7 @@ def test():
 
 
 # ###########################################################################
+# Flask-Security Unauthorized View endpoint
 @app.route('/page_not_serveable')
 def access_denied():
     """Custom Access Forbidden view"""
@@ -27,6 +29,7 @@ def access_denied():
 
 
 # ###########################################################################
+# Flask Error views
 @app.errorhandler(403)
 def page_not_serveable(e):
     """Custom Access Forbidden view"""
@@ -38,6 +41,13 @@ def page_not_serveable(e):
 def page_not_found(e):
     """Custom Forbidden view"""
     return render_template('404.html'), 404
+
+
+# ###########################################################################
+@app.errorhandler(405)
+def method_not_allowed(e):
+    """Custom Method not allowed view"""
+    return render_template('405.html'), 405
 
 
 # ###########################################################################
@@ -194,7 +204,17 @@ def product_add():
 
     fs.rebind(model=Product)
 
-    return render_template('products/product_add.html', form=fs)
+    product_add_form = ProductAddForm(request.form)
+
+    if request.method == 'POST':
+        if product_add_form.validate_on_submit():
+            product = Product(name=product_add_form.name.data, language=product_add_form.language.data, framework=product_add_form.framework.data, vcs_repo_base=product_add_form.vcs_repo_base.data)
+            db.session.add(product)
+            db.session.commit()
+            flash('New Product Added Successfully!')
+            return redirect(url_for('products_list'))
+
+    return render_template('products/product_add.html', form=product_add_form)
 
 
 ###########################################################################
@@ -331,12 +351,13 @@ def task_detail(task_id):
 @login_required
 def users_list():
     """List of all registered users of the web app"""
+    users = User.query.all()
 
-    return ''
+    return render_template('users/user_list.html', users=users)
 
 
 ###########################################################################
-@app.route('/user_role_assign', methods = ['GET', 'POST'])
+@app.route('/user_role_assign', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'mod')
 def user_role_assign():
@@ -434,14 +455,7 @@ def host_add():
 def profile_view():
     """View profile, self or other members"""
     user = User.query.get(current_user.id)
-
     msgs = user.msgs_received
-
-    for each in msgs:
-        for each1 in each.owner.all():
-            print each1.email
-        for each1 in each.receipient.all():
-            print each1.email
 
     return render_template('users/profile_view.html', user=user, DST=DST, msgs=msgs)
 
@@ -473,9 +487,25 @@ def profile_edit():
 
     return render_template('users/profile_edit.html', user=user, DST=DST, form=profile_edit_form)
 
-@app.route('/message')
+@app.route('/message', methods=['GET', 'POST'])
 @login_required
 def messages():
+
+    if request.is_xhr:
+        msg = Message.query.get(request.form['msg_id'])
+        data = dict()
+        data['msg_id'] = msg.id
+        data['sender'] = msg.owner.first().email
+        data['receiver'] = msg.receipient.first().email
+        data['msg-body'] = msg.message_body
+        data['date'] = msg.sent_at
+
+        if not msg.owner.first().id == current_user.id and not msg.read:
+            msg.read = 1
+            db.session.commit()
+            data['seen'] = True
+
+        return jsonify(data)
 
     return render_template('users/messages.html')
 

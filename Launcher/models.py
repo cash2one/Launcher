@@ -95,6 +95,8 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
     msgs_sent = db.relationship('Message', backref=db.backref('owner', lazy='dynamic'), primaryjoin="User.id==Message.sender_id")
     msgs_received = db.relationship('Message', backref=db.backref('receipient', lazy='dynamic'), primaryjoin="User.id==Message.receiver_id")
+    msgs_unread = db.relationship('Message', primaryjoin="and_(User.id==Message.receiver_id, Message.read==0)")
+
 
 
 class Message(db.Model):

@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for project in projects %}
+                {%- for project in projects %}
                     <tr class="row text-center">
                         <td>{{ project.id }}</td>
                         <td>{{ project.name }}</td>
@@ -36,13 +36,13 @@
                         <td>{{ project.vcs_tool }}</td>
                         <td>{{ project.vcs_repo }}</td>
                         <td>{{ project.mysql_db_name }}</td>
-                        {% if project.is_deployed %}
+                        {%- if project.is_deployed %}
                         <td>Deployed</td>
-                        {% else %}
-                        <td><a href="{{ url_for('deploy_project', project_id=project.id) }}" class="btn btn-danger">Deploy?</a></td>
-                        {% endif %}
+                        {%- else %}
+                        <td><a href="{{ url_for('deploy_project', project_id=project.id) }}" class="btn btn-danger">Deploy</a></td>
+                        {%- endif %}
                     </tr>
-                {% endfor %}
+                {%- endfor %}
             </tbody>
         </table>
 

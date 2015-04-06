@@ -191,6 +191,11 @@
                         <div class="panel panel-info">
                             <div class="panel-heading bold"><span class="glyphicon glyphicon-envelope"></span> Messages</div>
                             <div class="panel-body">
+                                <a class="btn btn-warning" href="{{ url_for('messages') }}">
+                                    Unread <span class="badge">{{ current_user.msgs_unread|length }}</span>
+                                </a>
+                                <br/>
+                                <br/>
                                 <a class="btn btn-danger" href="{{ url_for('messages') }}">
                                     Inbox <span class="badge">{{ current_user.msgs_received|length }}</span>
                                 </a>

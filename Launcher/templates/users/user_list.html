@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}List of Users{% endblock title %}
+
+{% block content %}
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-hover">
+            <caption>Users list</caption>
+            <thead>
+            <tr class="row text-center bold">
+                <td>#</td>
+                <td>E-mail</td>
+                <td>Display Name</td>
+                <td>Full Name</td>
+                <td>Active</td>
+                <td>Joined</td>
+                <td>Last Seen</td>
+                <td>Last Seen IP</td>
+                <td>Current IP</td>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for user in users %}
+                <tr class="row text-center">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.display_name }}</td>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ 'Yes' if user.is_active else 'No' }}</td>
+                    <td>{{ user.confirmed_at.strftime('%B %d, %Y, %A, %I:%M:%S %p') }}</td>
+                    <td>{{ user.last_login_at.strftime('%B %d, %Y, %A, %I:%M:%S %p') }}</td>
+                    <td>{{ user.last_login_ip }}</td>
+                    <td>{{ user.current_login_ip }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+
+    </div>
+{% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.table').dataTable();
+        });
+    </script>
+{% endblock js %}
