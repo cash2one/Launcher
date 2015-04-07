@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product{% endblock title %}
+
+{% block content %}
+
+    {% from '_macros.html' import render_field_with_errors, render_checkbox %}
+
+    <h2>Edit Product:</h2>
+    <hr/>
+    <form action="{{ url_for('product_edit', product_id=product.id) }}" role="form" method="post">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ render_field_with_errors(form.name, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.language, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.framework, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.deploy_steps, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.maintain_steps, class_='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(form.vcs_repo_base, class_='form-control') }}
+        </div>
+        <hr/>
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+    </form>
+
+{% endblock content %}

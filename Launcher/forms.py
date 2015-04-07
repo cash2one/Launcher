@@ -23,28 +23,30 @@ class TaskExecuteForm(Form):
 
 
 # Project Add Form
-class ProjectAddForm(Form):
+class ProjectAddEditForm(Form):
     """Form for adding new project"""
-    name = StringField(label='Project Name', validators=[validators.DataRequired()])
+    name = StringField(label='Project Name', validators=[validators.DataRequired("Must give a project name")])
     client_name = StringField(label='Client Name')
     product_type = SelectField(label='Product Type', validators=[validators.DataRequired()])
     server = SelectField(label='Server Machine', validators=[validators.DataRequired()])
-    instance_port = IntegerField(label='Instance Port #', validators=[validators.DataRequired()])
-    project_dir = StringField(label='Project Directory', validators=[validators.DataRequired()])
-    vcs_tool = SelectField(label='Version Control Tool', choices=[('svn', 'SubVersioN'),('git', 'Git')])
+    instance_port = IntegerField(label='Instance Port #', validators=[validators.DataRequired("Must provide an integer port")])
+    project_dir = StringField(label='Project Directory', validators=[validators.DataRequired("Must be valid path")])
+    vcs_tool = SelectField(label='Version Control Tool', choices=[('SVN', 'SubVersioN'),('Git', 'Git')])
     vcs_repo = StringField(label='VCS Repository URL', validators=[validators.DataRequired()])
     mysql_database_name = StringField(label='Database Name', validators=[validators.DataRequired()])
 
 
-class ProductAddForm(Form):
+class ProductAddEditForm(Form):
     """Form for adding new product"""
     name = StringField(label='Product Name', validators=[validators.DataRequired('Must give the product name')])
-    language = SelectField(label='Coding Language', choices=[('python', 'Python'), ('php', 'PHP'), ('perl', 'Perl'),('java', 'Java'),('ruby', 'Ruby')])
-    framework = SelectField(label='Framework', choices=[('furinapy', 'FurinaPy'), ('furinaphp', 'FurinaPHP'), ('django', 'django'), ('flask', 'Flask'), ('cake', 'Cake')])
+    language = SelectField(label='Coding Language', choices=[('Python', 'Python'), ('PHP', 'PHP'), ('Perl', 'Perl'),('Java', 'Java'),('Ruby', 'Ruby')])
+    framework = SelectField(label='Framework', choices=[('FurinaPy', 'FurinaPy'), ('FurinaPHP', 'FurinaPHP'), ('django', 'django'), ('Flask', 'Flask'), ('Cake', 'Cake')])
+    deploy_steps = StringField(label='Steps needed to deploy this type of product:')
+    maintain_steps = StringField(label='Steps needed to maintain this type of product:')
     vcs_repo_base = StringField(label='Version Control Repository Base URL')
 
 
-class TaskAddForm(Form):
+class TaskAddEditForm(Form):
     """Form for adding new task"""
     name = StringField(label='Task Name', validators=[validators.DataRequired()])
     description = StringField(label='Description')
@@ -67,7 +69,7 @@ class RoleCreateForm(Form):
     description = StringField(label='Enter a description of the role:', validators=[validators.DataRequired('Must describe the role (eg Administrator, Moderator)...This will be shown when assigning role')])
 
 
-class ServerMachineAddForm(Form):
+class ServerMachineAddEditForm(Form):
     """Form for adding new server"""
     host_name = StringField(label='Host Name')
     host_ip = StringField(label='Host IP Address', validators=[validators.IPAddress(), validators.DataRequired()])

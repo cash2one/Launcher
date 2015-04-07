@@ -83,39 +83,55 @@ def projects_list():
 @roles_accepted('admin', 'mod')
 def project_add():
     """Add a new project, possibly for future deploy"""
-    project = Project()
-    fs = FieldSet(project)
 
-    product_options = [('','')]
-    servers = [('',''), ('Local', 'Local')]
-
-    for each in Product.query.with_entities(Product.name).all():
-        product_options.append((each[0], each[0]))
-
-    for each in Machine.query.with_entities(Machine.id,Machine.host_name).all():
-        servers.append((each[1], str(each[0])))
-
-    vcs = [('SVN', 'SVN'), ('Git', 'Git')]
-
-    fs.configure(options=[
-        fs.product_type.dropdown(product_options),
-        fs.server_id.label('Server Machine').dropdown(servers),
-        fs.vcs_tool.label('Version Control').dropdown(vcs)
-        #fs.is_deployed.hidden(),
-        #fs.celery_task_id.hidden()
-    ])
+    project_add_form = ProjectAddEditForm(request.form)
+    project_add_form.product_type.choices = [(each[0], each[0]) for each in Product.query.with_entities(Product.name).all()]
+    project_add_form.server.choices = [(each[0], each[0]) for each in Machine.query.with_entities(Machine.host_name).all()]
 
     if request.method == 'POST':
-        fs.rebind(data=request.form)
-        if fs.validate():
-            fs.sync()
+        if project_add_form.validate_on_submit():
+            project = Project()
+            project_add_form.populate_obj(project)
             db.session.add(project)
             db.session.commit()
-            flash('Project successfully added!')
+            flash('Project Successfully Added!')
+            return redirect(url_for('projects_list'))
+        else:
+            flash('Form Validation Failed!!')
 
-    fs.rebind(model=Project)
+    # project = Project()
+    # fs = FieldSet(project)
+    #
+    # product_options = [('','')]
+    # servers = [('',''), ('Local', 'Local')]
+    #
+    # for each in Product.query.with_entities(Product.name).all():
+    #     product_options.append((each[0], each[0]))
+    #
+    # for each in Machine.query.with_entities(Machine.id,Machine.host_name).all():
+    #     servers.append((each[1], str(each[0])))
+    #
+    # vcs = [('SVN', 'SVN'), ('Git', 'Git')]
+    #
+    # fs.configure(options=[
+    #     fs.product_type.dropdown(product_options),
+    #     fs.server_id.label('Server Machine').dropdown(servers),
+    #     fs.vcs_tool.label('Version Control').dropdown(vcs)
+    #     #fs.is_deployed.hidden(),
+    #     #fs.celery_task_id.hidden()
+    # ])
+    #
+    # if request.method == 'POST':
+    #     fs.rebind(data=request.form)
+    #     if fs.validate():
+    #         fs.sync()
+    #         db.session.add(project)
+    #         db.session.commit()
+    #         flash('Project successfully added!')
+    #
+    # fs.rebind(model=Project)
 
-    return render_template('projects/project_add.html', form=fs)
+    return render_template('projects/project_add.html', form=project_add_form)
 
 
 ###########################################################################
@@ -183,38 +199,56 @@ def products_list():
 @roles_accepted('admin', 'mod')
 def product_add():
     """Add a new software solution that was made"""
-    product = Product()
-    fs = FieldSet(product)
-
-    languages = [('Python', 'Python'), ('PHP', 'PHP'), ('Perl', 'Perl'), ('Ruby', 'Ruby'), ('Java', 'Java')]
-    frameworks = [('FurinaPy', 'FurinaPy'), ('FurinaPHP', 'FurinaPHP'), ('django', 'django'), ('Flask', 'Flask'), ('Pyramid', 'Pyramid'), ('Bottle', 'Bottle'), ('Web2Py', 'Web2Py'), ('Cake', 'Cake')]
-
-    fs.configure(options=[
-        fs.language.dropdown(languages),
-        fs.framework.dropdown(frameworks)
-    ])
-
-    if request.method == 'POST':
-        fs.rebind(data=request.form)
-        if fs.validate():
-            fs.sync()
-            db.session.add(product)
-            db.session.commit()
-            flash('Product successfully added!')
-
-    fs.rebind(model=Product)
-
-    product_add_form = ProductAddForm(request.form)
+    product_add_form = ProductAddEditForm(request.form)
 
     if request.method == 'POST':
         if product_add_form.validate_on_submit():
-            product = Product(name=product_add_form.name.data, language=product_add_form.language.data, framework=product_add_form.framework.data, vcs_repo_base=product_add_form.vcs_repo_base.data)
+            product = Product()
+            product_add_form.populate_obj(product)
             db.session.add(product)
             db.session.commit()
             flash('New Product Added Successfully!')
             return redirect(url_for('products_list'))
 
     return render_template('products/product_add.html', form=product_add_form)
+
+
+@app.route('/product_edit/<product_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def product_edit(product_id):
+    """Edit a product from the database"""
+    product = Product.query.get(product_id)
+    product_edit_form = ProductAddEditForm(request.form, product)
+
+    if request.method == 'POST':
+        if product_edit_form.validate_on_submit():
+            product_edit_form.populate_obj(product)
+            db.session.commit()
+            flash('Product Edited Successfully!')
+            return redirect(url_for('products_list'))
+        else:
+            flash('Form Validaion Failed!!')
+
+    return render_template('products/product_edit.html', form=product_edit_form, product=product)
+
+
+
+@app.route('/product_delete/<product_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def product_delete(product_id):
+    """Delete a product from the database"""
+
+    product = Product.query.get(product_id)
+
+    if request.is_xhr:
+        db.session.delete(product)
+        db.session.commit()
+        flash('Product Deleted Successfully!')
+        #return redirect(url_for('products_list'))
+
+    return render_template('products/product_delete.html', product=product)
 
 
 ###########################################################################
@@ -228,7 +262,7 @@ def task_list():
 
 
 ###########################################################################
-@app.route('/task_add', methods=['GET','POST'])
+@app.route('/task_add', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'mod')
 def task_add():

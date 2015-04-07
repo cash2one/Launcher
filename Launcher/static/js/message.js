@@ -16,7 +16,6 @@ function show_message(row) {
                 $('tr#' + data['msg_id']).removeClass('bold');
                 $('tr#' + data['msg_id'] + ' > td.inbox-read').html('<i class="glyphicon glyphicon-check"></i>');
             }
-
         },
         error: function () {
             alert('Unexpected error');

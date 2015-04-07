@@ -4,12 +4,17 @@
 
 {% block content %}
 
+    <a href="{{ url_for('project_add') }}" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign"></span> New Project</a>
+    <a href="{{ url_for('deploy_project_list') }}" class="btn btn-primary"><span class="fa fa-rocket"></span> Deploy Project</a>
+    <hr/>
+
     <div class="table-responsive">
 
         <table class="table table-bordered table-hover">
             <caption>Projects list</caption>
             <thead>
                 <tr class="row text-center bold">
+                    <td>Actions</td>
                     <td>Project No</td>
                     <td>Project Name</td>
                     <td>Client Name</td>
@@ -26,6 +31,11 @@
             <tbody>
                 {%- for project in projects %}
                     <tr class="row text-center">
+                        <td><a class="btn btn-warning glyphicon glyphicon-edit"
+                               href=""> Edit</a>
+                            <hr/>
+                            <a class="btn btn-danger glyphicon glyphicon-trash"
+                               href=""> Delete</a></td>
                         <td>{{ project.id }}</td>
                         <td>{{ project.name }}</td>
                         <td>{{ project.client_name }}</td>

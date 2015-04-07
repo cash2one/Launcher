@@ -30,6 +30,7 @@ celery_obj.conf.update(app.config)
 
 from .import views, models
 
+# change DEBUG in config
 if not app.debug:
     import logging
     from logging.handlers import RotatingFileHandler

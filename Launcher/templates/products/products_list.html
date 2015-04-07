@@ -3,6 +3,11 @@
 {% block title %}Products List{% endblock title %}
 
 {% block content %}
+
+    <a class="btn btn-md btn-success" href="{{ url_for('product_add') }}"><span class="glyphicon glyphicon-plus-sign"></span> New Product</a>
+
+    <hr/>
+
     <div class="table-responsive">
 
         <table class="table table-bordered table-hover table-responsive">
@@ -15,6 +20,7 @@
                     <td>Framework</td>
                     <td>Deploy Steps</td>
                     <td>Maintain Steps</td>
+                    <td>Action</td>
                 </tr>
             </thead>
             <tbody>
@@ -26,6 +32,7 @@
                         <td>{{ product.framework }}</td>
                         <td>{{ product.deploy_steps }}</td>
                         <td>{{ product.maintain_steps }}</td>
+                        <td><a class="btn btn-warning glyphicon glyphicon-edit" href="{{ url_for('product_edit', product_id=product.id) }}"> Edit</a><hr/><a class="btn btn-danger glyphicon glyphicon-trash" href="{{ url_for('product_delete', product_id=product.id) }}"> Delete</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
