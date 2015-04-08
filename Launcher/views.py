@@ -1,7 +1,7 @@
 __author__ = 'HZ'
 
 from .import app, db, celery_obj, security, mail, user_datastore
-from flask import render_template, flash, request, redirect, url_for, jsonify, session
+from flask import render_template, flash, request, redirect, url_for, jsonify, session, abort
 
 from formalchemy import FieldSet
 from models import *
@@ -241,6 +241,9 @@ def product_delete(product_id):
     """Delete a product from the database"""
 
     product = Product.query.get(product_id)
+
+    if not product:
+        abort(500)
 
     if request.is_xhr:
         db.session.delete(product)
