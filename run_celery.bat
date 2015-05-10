@@ -1,5 +1,9 @@
 @echo off
 
-venv\scripts\activate && celery worker -A Launcher.celery_obj -f celery.worker.log --loglevel=INFO
+set venv=%userprofile%\Envs\launcher
+
+rem echo %venv%
+
+%venv%\scripts\activate && celery worker -A Launcher.celery_obj -f celery.worker.log --loglevel=INFO
 
 @echo on
