@@ -32,14 +32,24 @@ from .import views, models
 
 # change DEBUG in config
 if not app.debug:
-    import logging
+    import logging, os
     from logging.handlers import RotatingFileHandler
-    # Flask-Wergzeug requests logging
+
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s")
-    logger = logging.getLogger('werkzeug')
-    handler = RotatingFileHandler('launcher.log')
-    handler.setFormatter(formatter)
-    #handler.setLevel(logging.INFO)
-    logger.addHandler(handler)
+
+    # Flask-Wergzeug requests logging
+    wz_logger = logging.getLogger('werkzeug')
+    wz_handler = RotatingFileHandler(os.path.join('logs', 'launcher.log'))
+    wz_handler.setFormatter(formatter)
+    wz_handler.setLevel(logging.INFO)
+    wz_logger.addHandler(wz_handler)
     # Add the handler to Flask's logger for cases where Werkzeug isn't used as the underlying WSGI server.
-    app.logger.addHandler(handler)
+    app.logger.addHandler(wz_handler)
+
+    # SQLAlchemy query logging
+    sa_logger = logging.getLogger('sqlalchemy')
+    sa_handler = RotatingFileHandler(os.path.join('logs', 'sql.log'))
+    sa_handler.setFormatter(formatter) #may not work as expected
+    sa_handler.setLevel(logging.DEBUG)
+    sa_logger.addHandler(sa_handler)
+    #app.logger.addHandler(sa_handler)

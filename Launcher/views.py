@@ -17,6 +17,7 @@ DST = timedelta(hours=6)
 @login_required
 def test():
     """Dummy route for testing site layout for dev purpose"""
+
     return render_template('base.html')
 
 
@@ -815,13 +816,15 @@ def PrismERPDeploy(self, project_id):
     import threading, time, os, random, Queue
     from fabfile.fabfile import remote_deploy
 
+
+
     project = Project.query.get(project_id)
     tasks = [
         # ['Check Out', remote_deploy.checkout],
         # ['Static File Minification', remote_deploy.change_static_to_pro],
         # ['Database Creation', remote_deploy.create_db],
         # ['Deployment Setting Change', remote_deploy.change_settings],
-        ['Apache Vhost Add', remote_deploy.create_vhost],
+        # ['Apache Vhost Add', remote_deploy.create_vhost],
         ['Server Restart', remote_deploy.server_restart]
     ]
 
@@ -861,7 +864,7 @@ def PrismERPDeploy(self, project_id):
         # [os.path.altsep.join([project.project_dir, 'public', 'static'])],
         # [project.mysql_db_name, sql_paths, machine.mysql_username, machine.mysql_password, 'localhost'],
         # [project.project_dir, changes_dict],
-        [apache_conf_file_path, project.project_dir, str(project.instance_port)],
+        # [apache_conf_file_path, project.project_dir, str(project.instance_port)],
         []
     ]
 
@@ -890,7 +893,6 @@ def PrismERPDeploy(self, project_id):
         t.join()
         result.append(q.get())
         completed_tasks += 1
-
         self.update_state(
             state='PROGRESS',
             meta={

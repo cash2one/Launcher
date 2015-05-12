@@ -3,17 +3,19 @@ __author__ = 'HZ'
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 #Flask-SQLAlchemy settings
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'launcher.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-
+#SQLALCHEMY_ECHO = True
+#SQLALCHEMY_RECORD_QUERIES = True
 
 #Flask-WTF settings
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
 #Flask-Babel
-BABEL_DEFAULT_TIMEZONE = 'UTC+6:00'
+BABEL_DEFAULT_TIMEZONE = 'Asia/Dhaka'
 
 #Flask-Mail settings
 MAIL_USERNAME = 'palash@divine-it.net'
@@ -25,10 +27,31 @@ MAIL_PORT = 465
 MAIL_USE_SSL = True
 MAIL_USE_TLS = False
 
-
 # Celery configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+#CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+TIME_ZONE = 'UTC'
+USE_TZ = True
+CELERY_ENABLE_UTC = True
+CELERY_TIMEZONE = 'Asia/Dhaka'
+CELERY_RESULT_BACKEND = 'db+sqlite:///launcher.db'
+#CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
+#CELERY_SEND_TASK_SENT_EVENT = True
+# Enables error emails.
+CELERY_SEND_TASK_ERROR_EMAILS = True
+# Name and email addresses of recipients
+ADMINS = (
+    ('HZ', 'palash@divine-it.net'),
+)
+# Mailserver configuration
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'palash@divine-it.net'
+EMAIL_HOST_PASSWORD = 'hpkjhulvnhekbdmz'
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+# Email address used as sender (From field).
+SERVER_EMAIL = 'no-reply@launcher.celery.com'
 
 #Flask-Security Settings
 
