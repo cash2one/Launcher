@@ -30,9 +30,9 @@ MAIL_USE_TLS = False
 # Celery configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 #CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-TIME_ZONE = 'UTC'
-USE_TZ = True
-CELERY_ENABLE_UTC = True
+#TIME_ZONE = 'UTC'
+#USE_TZ = True
+#CELERY_ENABLE_UTC = True
 CELERY_TIMEZONE = 'Asia/Dhaka'
 CELERY_RESULT_BACKEND = 'db+sqlite:///launcher.db'
 #CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.

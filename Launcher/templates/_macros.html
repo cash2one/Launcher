@@ -1,21 +1,36 @@
 {# Render a Complete field with labels and errors #}
 {% macro render_field_with_errors(field) %}
-  <p>
+    <p>
       {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}{{ field.label(class_='control-label') }} {{ field(**kwargs)|safe }}
     {% if field.errors %}
       {% for error in field.errors %}
         <p class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> {{ error }}</p>
       {% endfor %}
     {% endif %}
-  </p>
+    </p>
 {% endmacro %}
 
 {# Render the field only without label #}
 {% macro render_field(field) %}
-  <p>{{ field(**kwargs)|safe }}</p>
+    <p>{{ field(**kwargs)|safe }}</p>
 {% endmacro %}
 
 {# Render Checkbox #}
 {% macro render_checkbox(field) %}
-  {{ field(**kwargs)|safe }}
+    {{ field(**kwargs)|safe }}
+{% endmacro %}
+
+
+{# Render Full Form #}
+{% macro render_full_form(action_url, form, submit_text) %}
+    <form action="{{ action_url }}" role="form" method="post">
+        {{ form.csrf_token }}
+        {% for field in form %}
+            {% if not field==form.csrf_token %}
+            {{ render_field_with_errors(field, class_='form-control') }}
+            {% endif %}
+        {% endfor %}
+        <hr/>
+        <button type="submit" class="btn btn-primary btn-lg">{{ submit_text }}</button>
+    </form>
 {% endmacro %}

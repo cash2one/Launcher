@@ -18,6 +18,7 @@
                     <td>Product Name</td>
                     <td>Language</td>
                     <td>Framework</td>
+                    <td>VCS</td>
                     <td>Deploy Steps</td>
                     <td>Maintain Steps</td>
                     <td>Action</td>
@@ -30,6 +31,7 @@
                         <td>{{ product.name }}</td>
                         <td>{{ product.language }}</td>
                         <td>{{ product.framework }}</td>
+                        <td>{{ product.vcs_repo_base }}</td>
                         <td>{{ product.deploy_steps }}</td>
                         <td>{{ product.maintain_steps }}</td>
                         <td><a class="btn btn-warning glyphicon glyphicon-edit" href="{{ url_for('product_edit', product_id=product.id) }}"> Edit</a><hr/><a class="btn btn-danger glyphicon glyphicon-trash" href="{{ url_for('product_delete', product_id=product.id) }}"> Delete</a></td>

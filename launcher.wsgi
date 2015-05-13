@@ -2,7 +2,9 @@ import sys,os,site
 
 _PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-_SITE_PACKAGES_DIR = os.path.sep.join([_PROJECT_DIR, 'venv\lib\site-packages'])
+_VENV_PATH = os.path.sep.join([os.environ('USERPROFILE'), 'Envs', 'launcher'])
+
+_SITE_PACKAGES_DIR = os.path.sep.join([_VENV_PATH, 'lib', 'site-packages'])
 sys.path.insert(0, _SITE_PACKAGES_DIR)
 #site.addsitedir(_SITE_PACKAGES_DIR)
 

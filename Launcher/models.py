@@ -17,6 +17,10 @@ class Machine(db.Model):
     mysql_username = db.Column(db.Text)
     mysql_password = db.Column(db.Text)
 
+    def save(self):
+        print 'saving'
+        super(Machine, self).__save__()
+
 
 class Task(db.Model):
     """Single Task model....to execute seperate command"""

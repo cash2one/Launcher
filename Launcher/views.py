@@ -9,8 +9,7 @@ from forms import *
 
 from flask.ext.security import login_required, roles_required, roles_accepted, current_user, url_for_security
 
-from datetime import timedelta
-DST = timedelta(hours=6)
+from utils import DST
 
 ############################################################################
 @app.route('/preview')
@@ -26,53 +25,54 @@ def test():
 @app.route('/page_not_serveable')
 def access_denied():
     """Custom Access Forbidden view"""
-    return render_template('403.html')
+    return render_template('errors/403.html')
 
 
+#########################-----Flask Error views-----#########################
 # ###########################################################################
-# Flask Error views
 @app.errorhandler(403)
 def page_not_serveable(e):
     """Custom Access Forbidden view"""
-    return render_template('403.html'), 403
+    return render_template('errors/403.html'), 403
 
 
 # ###########################################################################
 @app.errorhandler(404)
 def page_not_found(e):
     """Custom Forbidden view"""
-    return render_template('404.html'), 404
+    return render_template('errors/404.html'), 404
 
 
 # ###########################################################################
 @app.errorhandler(405)
 def method_not_allowed(e):
     """Custom Method not allowed view"""
-    return render_template('405.html'), 405
+    return render_template('errors/405.html'), 405
 
 
 # ###########################################################################
 @app.errorhandler(500)
 def server_error(e):
     """Custom internal server error view"""
-    return render_template('500.html'), 500
+    return render_template('errors/500.html'), 500
 
 
+################################--Homepage--################################
 ############################################################################
 @app.route('/')
 @app.route('/index')
 def index():
     """Site root, Index view, Dashboard"""
-
     return render_template('index.html')
 
 
+############################---Projects Views---############################
 ############################################################################
 @app.route('/projects_list')
-#@roles_required('mod')
 @login_required
 def projects_list():
     """List of all projects with info from database"""
+
     projects = Project.query.all()
 
     return render_template('projects/projects_list.html', projects=projects)
@@ -100,38 +100,6 @@ def project_add():
         else:
             flash('Form Validation Failed!!')
 
-    # project = Project()
-    # fs = FieldSet(project)
-    #
-    # product_options = [('','')]
-    # servers = [('',''), ('Local', 'Local')]
-    #
-    # for each in Product.query.with_entities(Product.name).all():
-    #     product_options.append((each[0], each[0]))
-    #
-    # for each in Machine.query.with_entities(Machine.id,Machine.host_name).all():
-    #     servers.append((each[1], str(each[0])))
-    #
-    # vcs = [('SVN', 'SVN'), ('Git', 'Git')]
-    #
-    # fs.configure(options=[
-    #     fs.product_type.dropdown(product_options),
-    #     fs.server_id.label('Server Machine').dropdown(servers),
-    #     fs.vcs_tool.label('Version Control').dropdown(vcs)
-    #     #fs.is_deployed.hidden(),
-    #     #fs.celery_task_id.hidden()
-    # ])
-    #
-    # if request.method == 'POST':
-    #     fs.rebind(data=request.form)
-    #     if fs.validate():
-    #         fs.sync()
-    #         db.session.add(project)
-    #         db.session.commit()
-    #         flash('Project successfully added!')
-    #
-    # fs.rebind(model=Project)
-
     return render_template('projects/project_add.html', form=project_add_form)
 
 
@@ -141,6 +109,7 @@ def project_add():
 @roles_accepted('admin', 'mod')
 def deploy_project_list():
     """List of projects with status and action button to deploy or maintain"""
+
     projects = Project.query.all()
 
     return render_template('projects/project_deploy_list.html', projects=projects)
@@ -184,6 +153,7 @@ def deploy_project(project_id):
     return render_template('projects/project_detail.html', project=project, project_status=project_status)
 
 
+#########################----Product Views----#############################
 ###########################################################################
 @app.route('/products_list')
 @login_required
@@ -200,6 +170,7 @@ def products_list():
 @roles_accepted('admin', 'mod')
 def product_add():
     """Add a new software solution that was made"""
+
     product_add_form = ProductAddEditForm(request.form)
 
     if request.method == 'POST':
@@ -214,12 +185,17 @@ def product_add():
     return render_template('products/product_add.html', form=product_add_form)
 
 
+###########################################################################
 @app.route('/product_edit/<product_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
 def product_edit(product_id):
     """Edit a product from the database"""
+
     product = Product.query.get(product_id)
+    if not product:
+        abort(500)
+
     product_edit_form = ProductAddEditForm(request.form, product)
 
     if request.method == 'POST':
@@ -234,7 +210,7 @@ def product_edit(product_id):
     return render_template('products/product_edit.html', form=product_edit_form, product=product)
 
 
-
+###########################################################################
 @app.route('/product_delete/<product_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
@@ -242,7 +218,6 @@ def product_delete(product_id):
     """Delete a product from the database"""
 
     product = Product.query.get(product_id)
-
     if not product:
         abort(500)
 
@@ -250,11 +225,11 @@ def product_delete(product_id):
         db.session.delete(product)
         db.session.commit()
         flash('Product Deleted Successfully!')
-        #return redirect(url_for('products_list'))
 
     return render_template('products/product_delete.html', product=product)
 
 
+#########################-----Tasks Views-----#############################
 ###########################################################################
 @app.route('/task_list')
 @login_required
@@ -337,7 +312,7 @@ def cmd_execute():
 
 
 ###########################################################################
-@app.route('/task_detail/<task_id>', methods=['GET','POST'])
+@app.route('/task_detail/<task_id>', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin')
 def task_detail(task_id):
@@ -452,12 +427,14 @@ def user_role_create():
     return render_template('users/role_create.html', form=role_create_form)
 
 
+#######################-----Servers Views----##############################
 ###########################################################################
 @app.route('/hosts_list')
 @login_required
 @roles_accepted('admin', 'mod')
 def hosts_list():
     """List of all server host machines, viewable by only authenticated users"""
+
     hosts = Machine.query.all()
 
     return render_template('hosts/hosts_list.html', hosts=hosts)
@@ -469,22 +446,19 @@ def hosts_list():
 @roles_accepted('admin', 'mod')
 def host_add():
     """Add a new server host machine, manually"""
-    machine = Machine()
-    fs = FieldSet(machine)
+
+    host_add_form = ServerMachineAddEditForm(request.form)
 
     if request.method == 'POST':
-        fs.rebind(data=request.form)
-        if fs.validate():
-            fs.sync()
-            db.session.add(machine)
+        if host_add_form.validate_on_submit():
+            host = Machine()
+            host_add_form.populate_obj(host)
+            db.session.add(host)
             db.session.commit()
-            flash('Server successfully added!')
-
+            flash('New Server Added Successfully!')
             return redirect(url_for('hosts_list'))
 
-    fs.rebind(model=Machine)
-
-    return render_template('hosts/host_add.html', form=fs)
+    return render_template('hosts/host_add.html', form=host_add_form)
 
 
 ###########################################################################
@@ -493,9 +467,9 @@ def host_add():
 def profile_view():
     """View profile, self or other members"""
     user = User.query.get(current_user.id)
-    msgs = user.msgs_received
+    #msgs = user.msgs_received
 
-    return render_template('users/profile_view.html', user=user, DST=DST, msgs=msgs)
+    return render_template('users/profile_view.html', user=user, DST=DST)
 
 
 ###########################################################################

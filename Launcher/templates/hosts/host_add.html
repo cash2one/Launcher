@@ -4,18 +4,10 @@
 
 {% block content %}
 
+    {% from '_macros.html' import render_full_form %}
     <div class="container">
         <h3>Add New Server</h3>
         <br/>
-        <form action="" method="post" class="form-group" role="form">
-            {% for field in form._fields.keys()[1:] %}
-                <div class="form-group">
-                <label for="{{ field }}">{{ form[field].label() }}:</label>
-                    <br/>
-                    {{ form[field].render() }}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-default">Add</button>
-        </form>
+        {{ render_full_form(url_for('hosts_list'), form, 'Add') }}
     </div>
 {% endblock content %}

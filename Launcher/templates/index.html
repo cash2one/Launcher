@@ -16,8 +16,17 @@
         </ul>
 
         <br/>
+        <button id="show-docs" class="btn btn-lg btn-success">How to use?</button>
+        <div id="docs">
+            {% include 'documentation.html' %}
+
+        </div>
+
         <hr/>
-        <h3>Credits:</h3>
+
+        <button id="show-credits" class="btn btn-lg btn-info">Credits</button>
+        <div id="credits">
+            <h3>Credits:</h3>
 
             <span><img src="{{ url_for('static', filename='imgs/python.png') }}" width="200" class="img-responsive"/></span>
             <br/>
@@ -32,7 +41,10 @@
             <span><img src="{{ url_for('static', filename='imgs/fabric1.png') }}" width="" class="img-responsive"/></span>
             <br/>
             <span><img src="{{ url_for('static', filename='imgs/celery.png') }}" width="" class="img-responsive"/></span>
-
+        </div>
     </div>
 {% endblock content %}
 
+{% block js %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/launcher.js') }}"></script>
+{% endblock js %}

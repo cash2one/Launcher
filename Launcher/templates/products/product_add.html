@@ -4,19 +4,10 @@
 
 {% block content %}
 
-    {% from '_macros.html' import render_field_with_errors, render_checkbox %}
+    {% from '_macros.html' import render_full_form %}
 
     <h2>Add New Software Product:</h2>
     <hr/>
-    <form action="{{ url_for('product_add') }}" role="form" method="post">
-        {{ form.csrf_token }}
-        {% for field in form %}
-            {% if not field==form.csrf_token %}
-            {{ render_field_with_errors(field, class_='form-control') }}
-            {% endif %}
-        {% endfor %}
-        <hr/>
-        <button type="submit" class="btn btn-primary btn-lg">Add</button>
-    </form>
+    {{ render_full_form(url_for('product_add'), form, 'Add') }}
 
 {% endblock content %}
