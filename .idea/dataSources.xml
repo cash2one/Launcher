@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="1976221120">
-    <data-source source="LOCAL" name="launcher" uuid="a93b0e80-609d-43d6-87c7-655bc39bb6d5">
+  <component name="DataSourceManagerImpl" format="xml">
+    <data-source source="LOCAL" name="launcher" uuid="f01c3ba4-b80b-4f92-b6c8-e2aed18f4504">
       <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:D:\Works\Launcher2\launcher.db</jdbc-url>
-      <libraries />
+      <jdbc-url>jdbc:sqlite:E:\Works\Launcher2\launcher.db</jdbc-url>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/xerial-sqlite-license.txt</url>
+        </library>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/sqlite-jdbc-3.8.7.jar</url>
+        </library>
+      </libraries>
     </data-source>
   </component>
 </project>
-
