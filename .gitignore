@@ -155,3 +155,5 @@ crashlytics-build.properties
 
 .*/
 .*
+*.xml
+.idea/workspace.xml
