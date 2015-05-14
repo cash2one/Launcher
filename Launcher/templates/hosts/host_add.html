@@ -5,9 +5,9 @@
 {% block content %}
 
     {% from '_macros.html' import render_full_form %}
-    <div class="container">
-        <h3>Add New Server</h3>
-        <br/>
-        {{ render_full_form(url_for('hosts_list'), form, 'Add') }}
-    </div>
+
+    <h3>Add New Server</h3>
+    <br/>
+    {{ render_full_form(url_for('host_add'), form, 'Add') }}
+
 {% endblock content %}

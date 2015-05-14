@@ -20,10 +20,10 @@
                 <td>Host IP</td>
                 <td>Host Address</td>
                 <td>SSH Login Username</td>
-                <td>SSH Login Password</td>
+{#                <td>SSH Login Password</td>#}
                 <td>SSH Port</td>
                 <td>MySQL Username</td>
-                <td>MySQL Password</td>
+{#                <td>MySQL Password</td>#}
             </tr>
             </thead>
             <tbody>
@@ -34,10 +34,10 @@
                     <td>{{ host.host_ip }}</td>
                     <td>{{ host.host_address }}</td>
                     <td>{{ host.ssh_username }}</td>
-                    <td>{{ host.ssh_password }}</td>
+{#                    <td>{{ host.ssh_password }}</td>#}
                     <td>{{ host.ssh_port }}</td>
                     <td>{{ host.mysql_username }}</td>
-                    <td>{{ host.mysql_password }}</td>
+{#                    <td>{{ host.mysql_password }}</td>#}
                 </tr>
             {% endfor %}
             </tbody>
@@ -49,7 +49,7 @@
 {% block js %}
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.table').dataTable();
+            $table = $('.table').dataTable();
         });
     </script>
 {% endblock js %}

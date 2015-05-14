@@ -3,23 +3,8 @@ __author__ = 'HZ'
 
 from .import db
 from flask_security import UserMixin, RoleMixin
-
-
-class Machine(db.Model):
-    """Server Machine model....remote host"""
-    id = db.Column(db.Integer, primary_key=True)
-    host_name = db.Column(db.Text)
-    host_ip = db.Column(db.Text)
-    host_address = db.Column(db.Text)
-    ssh_username = db.Column(db.Text)
-    ssh_password = db.Column(db.Text)
-    ssh_port = db.Column(db.Integer)
-    mysql_username = db.Column(db.Text)
-    mysql_password = db.Column(db.Text)
-
-    def save(self):
-        print 'saving'
-        super(Machine, self).__save__()
+from sqlalchemy import event
+from utils import pwd_encryption, pwd_decryption
 
 
 class Task(db.Model):
@@ -51,7 +36,8 @@ class Project(db.Model):
     name = db.Column(db.Text)
     client_name = db.Column(db.Text)
     product_type = db.Column(db.Text)
-    server_id = db.Column(db.Text)#, db.ForeignKey('machine.id', ondelete='CASCADE'))
+    #server_id = db.Column(db.Text)#, db.ForeignKey('machine.id', ondelete='CASCADE'))
+    server_id = db.Column(db.Integer, db.ForeignKey('machine.id'))
     instance_port = db.Column(db.Integer)
     project_dir = db.Column(db.Text)
 
@@ -62,6 +48,41 @@ class Project(db.Model):
 
     is_deployed = db.Column(db.Text)
     celery_task_id = db.Column(db.Text)
+
+
+class Machine(db.Model):
+    """Server Machine model....remote host"""
+    id = db.Column(db.Integer, primary_key=True)
+    host_name = db.Column(db.Text)
+    host_ip = db.Column(db.Text)
+    host_address = db.Column(db.Text)
+    ssh_username = db.Column(db.Text)
+    ssh_password = db.Column(db.Text)
+    ssh_port = db.Column(db.Integer)
+    mysql_username = db.Column(db.Text)
+    mysql_password = db.Column(db.Text)
+
+    projects = db.relationship('Project', backref='machine')
+
+
+@event.listens_for(Machine, 'before_insert')
+def receive_before_insert(mapper, connection, target):
+    """listen for the 'before_insert' event"""
+    target.ssh_password = pwd_encryption(target.ssh_password)
+    target.mysql_password = pwd_encryption(target.mysql_password)
+
+
+class Message(db.Model):
+    """Message model....intercom test"""
+    id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.Text)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    receiver = db.Column(db.Text)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    subject_topic = db.Column(db.Text)
+    message_body = db.Column(db.Text)
+    sent_at = db.Column(db.Text)
+    read = db.Column(db.Boolean)
 
 
 #Flask-Security models
@@ -102,16 +123,26 @@ class User(db.Model, UserMixin):
     msgs_unread = db.relationship('Message', primaryjoin="and_(User.id==Message.receiver_id, Message.read==0)")
 
 
+# @event.listens_for(User, 'before_insert')
+# def receive_before_insert(mapper, connection, target):
+#     """listen for the 'before_insert' event"""
+#     target.svn_password = pwd_encryption(target.svn_password)
 
-class Message(db.Model):
-    """Message model....intercom test"""
-    id = db.Column(db.Integer, primary_key=True)
-    sender = db.Column(db.Text)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    receiver = db.Column(db.Text)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    subject_topic = db.Column(db.Text)
-    message_body = db.Column(db.Text)
-    sent_at = db.Column(db.Text)
-    read = db.Column(db.Boolean)
+@event.listens_for(User, 'before_update')
+def receive_before_update(mapper, connection, target):
+    """listen for the 'before_update' event"""
+    from sqlalchemy.orm.attributes import get_history
+    hist = get_history(target, 'svn_password')
+    added, unchanged, deleted = hist
+
+    try:
+        if added[0] == pwd_decryption(deleted[0]):
+            #print 'same'
+            target.svn_password = deleted[0]
+        else:
+            #print 'not same'
+            target.svn_password = pwd_encryption(target.svn_password)
+    except Exception as e:
+        print e
+        target.svn_password = pwd_encryption(target.svn_password)
 

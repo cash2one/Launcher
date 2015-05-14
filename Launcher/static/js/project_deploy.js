@@ -3,23 +3,21 @@
  */
 
 function project_deploy(project_id, project_type, spinner, message){
-
     start_long_task(project_id, project_type, spinner, message);
-
 }
 
 
 function start_long_task(project_id, project_type, spinner, message) {
-
     $.ajax({
         type: 'POST',
         url: '/longtask',
-        data: {project_id: project_id, project_type: project_type},
+        data: {
+            project_id: project_id,
+            project_type: project_type
+        },
         success: function (data, status, request) {
-            //alert('works');
             status_url = request.getResponseHeader('Location');
             update_progress(status_url, spinner, message);
-
         },
         error: function () {
             alert('Unexpected error');

@@ -70,36 +70,39 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/project_deploy.js') }}"></script>
     <script type='text/javascript'>
         $(document).ready(function () {
+            var $deployment = $('div#deployment');
             var spinner = $('<img src="/static/imgs/loader.gif" width="100" class="center-block"/>');
             var message = $('<h3 class="well well-lg center-block">Starting.....</h3>');
 
             var project_state = '{{ project_status }}';
 
             if (project_state=='SUCCESS') {
-                $('div#deployment').css('display','block');
-                $('<h1 class="panel-heading panel-success glyphicon glyphicon-ok"></h1>').text(' Success!').appendTo('div#deployment');
+                $deployment.css('display','block');
+                $('<h1 class="panel-heading panel-success glyphicon glyphicon-ok"></h1>').text(' Success!').appendTo($deployment);
             }
-            else if (project_state=='STARTED' || project_state == 'PENDING') {
-                $('div#deployment').css('display', 'block');
-                //re-append the completed task states div and continue ajaj request retrieval
-                $('#deployment').append(spinner);
-                $('#deployment').append(message);
-                //$('div.window').css('display', 'block');
-                update_progress('/status/{{ project.celery_task_id }}', spinner, message);
-
+            else if (project_state=='FAILURE' || project_state == 'HAULTED') {
+                $deployment.css('display','block');
+                $('<h1 class="panel-heading panel-success glyphicon glyphicon-remove"></h1>').text(' Failure!').appendTo($deployment);
             }
             else if (project_state == 'WAITING') {
                 // button is shown, clicking on it starts ajaj
-                $('#deploy').click(function () {
-                    $('div#deployment').css('display', 'block');
+                $('a#deploy').click(function () {
+                    $deployment.css('display', 'block');
                     //$('div.window').css('display', 'block');
                     $(this).hide();
+                    $deployment.append(spinner);
+                    $deployment.append(message);
                     project_deploy({{ project.id }}, '{{ project.product_type }}', spinner, message);
                 });
             }
-            else if (project_state=='FAILURE' || project_state == 'HAULTED') {
-                $('div#deployment').css('display','block');
-                $('<h1 class="panel-heading panel-success glyphicon glyphicon-remove"></h1>').text(' Failure!').appendTo('div#deployment');
+            //else if (project_state=='STARTED' || project_state == 'PENDING' || project_state == 'PROGRESS') {
+            else {
+                $deployment.css('display', 'block');
+                //re-append the completed task states div and continue ajaj request retrieval
+                $deployment.append(spinner);
+                $deployment.append(message);
+                //$('div.window').css('display', 'block');
+                update_progress('/status/{{ project.celery_task_id }}', spinner, message);
             }
         });
     </script>

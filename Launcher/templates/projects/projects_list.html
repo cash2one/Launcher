@@ -40,7 +40,7 @@
                         <td>{{ project.name }}</td>
                         <td>{{ project.client_name }}</td>
                         <td>{{ project.product_type }}</td>
-                        <td>{{ project.server_id }}</td>
+                        <td>{{ project.machine.host_name or project.machine.host_ip or None }}</td>
                         <td>{{ project.instance_port }}</td>
                         <td>{{ project.project_dir }}</td>
                         <td>{{ project.vcs_tool }}</td>

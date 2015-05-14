@@ -319,7 +319,7 @@ class PrismDeployment(TaskSet):
     @task_method
     def server_restart(self, queue=None):
         """Restart the Apache server...todo: touch the wsgi only without full restart"""
-        cmd = 'service httpd restart'
+        cmd = 'apachectl graceful'
         out = self.run_task(cmd)
         if queue:
             queue.put([cmd, out.split('\n')])
@@ -358,7 +358,7 @@ class PrismMaintenance(TaskSet):
     @task_method
     def server_restart(self):
         """Restart the Apache server...todo: touch the wsgi only without full restart"""
-        self.run_task('service httpd restart')
+        self.run_task('apachectl graceful')
 
     @task_method
     def maintain_project(self, co_dir):

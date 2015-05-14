@@ -11,51 +11,6 @@ from flask.ext.security import login_required, roles_required, roles_accepted, c
 
 from utils import DST
 
-############################################################################
-@app.route('/preview')
-@login_required
-def test():
-    """Dummy route for testing site layout for dev purpose"""
-
-    return render_template('base.html')
-
-
-# ###########################################################################
-# Flask-Security Unauthorized View endpoint
-@app.route('/page_not_serveable')
-def access_denied():
-    """Custom Access Forbidden view"""
-    return render_template('errors/403.html')
-
-
-#########################-----Flask Error views-----#########################
-# ###########################################################################
-@app.errorhandler(403)
-def page_not_serveable(e):
-    """Custom Access Forbidden view"""
-    return render_template('errors/403.html'), 403
-
-
-# ###########################################################################
-@app.errorhandler(404)
-def page_not_found(e):
-    """Custom Forbidden view"""
-    return render_template('errors/404.html'), 404
-
-
-# ###########################################################################
-@app.errorhandler(405)
-def method_not_allowed(e):
-    """Custom Method not allowed view"""
-    return render_template('errors/405.html'), 405
-
-
-# ###########################################################################
-@app.errorhandler(500)
-def server_error(e):
-    """Custom internal server error view"""
-    return render_template('errors/500.html'), 500
-
 
 ################################--Homepage--################################
 ############################################################################
@@ -87,7 +42,7 @@ def project_add():
 
     project_add_form = ProjectAddEditForm(request.form)
     project_add_form.product_type.choices = [(each[0], each[0]) for each in Product.query.with_entities(Product.name).all()]
-    project_add_form.server.choices = [(each[0], each[0]) for each in Machine.query.with_entities(Machine.host_name).all()]
+    project_add_form.server.choices = [(each[1], each[0]) for each in Machine.query.with_entities(Machine.host_name, Machine.id).all()]
 
     if request.method == 'POST':
         if project_add_form.validate_on_submit():
@@ -121,10 +76,11 @@ def deploy_project_list():
 @roles_accepted('admin', 'mod')
 def deploy_project(project_id):
     """Deploy a project, takes confirmation and move to actual deploy phase, all magic here"""
-    import requests, json
-    api_root = 'http://localhost:5555/api'
-    task_api = '{}/task'.format(api_root)
-    task_info_api = '{}/info'.format(task_api)
+    from tasks import PrismERPDeploy
+    #import requests, json
+    #api_root = 'http://localhost:5555/api'
+    #task_api = '{}/task'.format(api_root)
+    #task_info_api = '{}/info'.format(task_api)
 
     project = Project.query.get(project_id)
     task_id = project.celery_task_id
@@ -133,12 +89,15 @@ def deploy_project(project_id):
         project_status = 'SUCCESS'
 
     elif task_id:
+        task = PrismERPDeploy.AsyncResult(task_id)
         #project deploy process started before...chk the current status
-        url = task_info_api + '/{}'.format(task_id)
-        response = requests.get(url)
-        if response.content:
-            result = json.loads(response.content)
-            project_status = result['state']
+        #url = task_info_api + '/{}'.format(task_id)
+        #response = requests.get(url)
+        response = task.status
+        if response:
+            #result = json.loads(response.content)
+            #project_status = result['state']
+            project_status = response
             print project_status
         else:
             #no info against task_id means it was abrupted
@@ -192,9 +151,7 @@ def product_add():
 def product_edit(product_id):
     """Edit a product from the database"""
 
-    product = Product.query.get(product_id)
-    if not product:
-        abort(500)
+    product = Product.query.get_or_404(product_id)
 
     product_edit_form = ProductAddEditForm(request.form, product)
 
@@ -217,9 +174,7 @@ def product_edit(product_id):
 def product_delete(product_id):
     """Delete a product from the database"""
 
-    product = Product.query.get(product_id)
-    if not product:
-        abort(500)
+    product = Product.query.get_or_404(product_id)
 
     if request.is_xhr:
         db.session.delete(product)
@@ -321,6 +276,7 @@ def task_detail(task_id):
 
     from flask_wtf import Form
     from wtforms import StringField, SubmitField, validators, FieldList, FormField
+    from utils import make_command
 
     class TaskExcForm(Form):
         pass
@@ -359,6 +315,7 @@ def task_detail(task_id):
     return render_template('tasks/task_detail.html', task=task, form=form)
 
 
+#########################-----User Views----###############################
 ###########################################################################
 @app.route('/users_list')
 @login_required
@@ -453,6 +410,7 @@ def host_add():
         if host_add_form.validate_on_submit():
             host = Machine()
             host_add_form.populate_obj(host)
+
             db.session.add(host)
             db.session.commit()
             flash('New Server Added Successfully!')
@@ -461,6 +419,7 @@ def host_add():
     return render_template('hosts/host_add.html', form=host_add_form)
 
 
+#######################-----Setting Views----##############################
 ###########################################################################
 @app.route('/profile_view')
 @login_required
@@ -479,16 +438,18 @@ def profile_edit():
     """Edit own profile"""
     import base64
 
-    user = User.query.get(current_user.id)
+    user = User.query.get_or_404(current_user.id)
     profile_edit_form = ProfileEditForm(formdata=request.form, obj=user)
 
     if request.method == 'POST':
         if profile_edit_form.validate_on_submit():
 
-            user.display_name = profile_edit_form.display_name.data
-            user.full_name = profile_edit_form.full_name.data
-            user.svn_username = profile_edit_form.svn_username.data
-            user.svn_password = base64.encodestring(profile_edit_form.svn_password.data)
+            profile_edit_form.populate_obj(user)
+
+            # user.display_name = profile_edit_form.display_name.data
+            # user.full_name = profile_edit_form.full_name.data
+            # user.svn_username = profile_edit_form.svn_username.data
+            # user.svn_password = base64.encodestring(profile_edit_form.svn_password.data)
 
             db.session.commit()
 
@@ -520,383 +481,3 @@ def messages():
         return jsonify(data)
 
     return render_template('users/messages.html')
-
-
-###########################################################################
-def make_command(command='', parameters=[], switches=[], arguments=[]):
-    """Makes a shell command based on options added to the database"""
-    print command, parameters, switches, arguments
-
-    cmd = command
-
-    para = ''
-    if parameters:
-        for each in parameters:
-            if each[1]:
-                para += ' ' + str(each[0]) + ' ' + str(each[1])
-
-    sw = ''
-    if switches:
-        for each in switches:
-            sw += str(each) + ' '
-
-    args = ''
-    if arguments:
-        for each in arguments:
-            if each[1]:
-                args += str(each[1]) + ' '
-
-    if para:
-        cmd += para
-    if sw:
-        cmd += ' ' + sw
-    if args:
-        cmd += ' ' + args
-
-    print "Command is: %s" %cmd
-
-    return cmd
-
-
-###########################################################################
-@app.route('/task_execute')
-@login_required
-@roles_accepted('admin', 'mod')
-def task_execute():
-    """Execute a task and return ajaj reponse"""
-    from fabric.api import local
-
-    if request.method == 'GET' and request.args:
-
-        cmd = request.args['cmd']
-
-        try:
-            out = local(cmd, True)
-
-        except SystemExit:
-            flash("Invalid Command")
-            out = 'Please enter a valid command!'
-
-    elif request.method == 'POST':
-
-        cmd = request.form['cmd']
-
-        try:
-            out = local(cmd, True)
-        except SystemExit:
-            flash("Invalid Command")
-            out = 'Please enter a valid command!'
-    else:
-        cmd = 'Enter a command!'
-        out = 'None'
-
-    return jsonify(cmd=cmd, output=out.split('\n'))
-
-
-############################################################################
-# Implementing Celery
-# Starts by Initiating the long celery task
-@app.route('/longtask', methods=['POST'])
-@login_required
-@roles_accepted('admin', 'mod')
-def longtask():
-
-    #start the async celery task
-    if request.form['project_type'] == 'PrismERP':
-        task = PrismERPDeploy.apply_async([request.form['project_id']])
-    else:
-        pass
-        #put Core4 or other type product deploy system here
-        #task = long_task.apply_async([request.form['project_id']])
-
-    #insert the celery task id in db of project for future reference
-    project = Project.query.get(request.form['project_id'])
-    project.celery_task_id = task.id
-    db.session.commit()
-
-    #return empty data, status, and request header to ajaj
-    return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=task.id)}
-
-
-# Get ajaj response of the current long running task
-@app.route('/status/<task_id>')
-@login_required
-@roles_accepted('admin', 'mod')
-def taskstatus(task_id):
-    task = long_task.AsyncResult(task_id)
-
-    if task.state == 'PENDING':
-        response = {
-            'state': task.state,
-            'status': 'Pending...'
-        }
-    # All except failure....
-    elif task.state != 'FAILURE':
-        response = {
-            'state': task.state,
-            'status': task.info.get('status', ''),
-        }
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-            response['log'] = task.info['log']
-        if 'cmd' in task.info:
-            #print 'cmd out here', task.info
-            response['cmd'] = task.info['cmd']
-            response['output'] = task.info['output']
-
-    else:
-        # something went wrong in the background job
-        response = {
-            'state': task.state,
-            'status': str(task.info),  # this is the exception raised
-        }
-    return jsonify(response)
-
-
-# The CELERY LONG TASK Test
-@celery_obj.task(bind=True)
-def long_task(self, project_id):
-    import random, time, threading
-    """Background task that runs a long function with progress reports."""
-
-    message = ''
-    project = Project.query.get(project_id)
-
-    t = threading.Thread(target=f)
-    t.start()
-
-    while t.isAlive():
-        self.update_state(state='INITIAL', meta={'status': 'Deployment in progress....'})
-
-
-    return {'status': 'Task Completed!', 'result': 'Project Deployment Completed!'}
-
-
-# Test function for celery
-def f():
-    from fabric.api import local
-    out = local('ping google.com', True)
-
-
-# ###########################################################################
-# Prism ERP deploy procedure
-@celery_obj.task(bind=True)
-def localPrismERPDeploy(self, project_id):
-
-    import threading, time, os, random, Queue
-    from fabfile.fabfile import local_deploy
-
-    project = Project.query.get(project_id)
-    tasks = [
-        # ['CheckOut', local_deploy.checkout],
-        # ['Static File Minification', local_deploy.change_static_to_pro],
-        # ['Database Creation', local_deploy.create_db],
-        ['Deployment Setting Change', local_deploy.change_settings],
-        ['Apache Vhost Add', local_deploy.create_vhost],
-        ['Server Restart', local_deploy.server_restart]
-    ]
-
-    completed_tasks = 0
-
-    #Dummy Steps
-    self.update_state(state='INITIAL', meta={'status': 'Preparing to deploy......'})
-    time.sleep(4)
-    self.update_state(state='INITIAL', meta={'status': 'Gathering resources......'})
-    time.sleep(4)
-
-    sql_paths = [
-        os.path.join(project.project_dir, 'database', 'prism.sql'),
-        os.path.join(project.project_dir, 'database', 'sphere.sql'),
-        os.path.join(project.project_dir, 'database', 'lines.sql')
-    ]
-
-    changes_dict = {
-        'INTERNAL_NAME': '\'prism\'',
-        'PRODUCT_NAME': '\'Sphere\'',
-        'PRODUCT_TITLE': '\'LinesPay\'',
-        'DEBUG': 'False',
-        'PRODUCTION': 'True',
-        # 'DIVINEMAIL_IP' : '',
-        '\'NAME\':': '\'testdb\',',
-        '\'USER\':': '\'HUZR\',',
-        '\'PASSWORD\':': '\'123\',',
-        'BIRTVIEWER_DIR': '\'D:\\\\birt\\\\\'',
-        'COMPANY_NAME': '\'HZ\''
-    }
-
-    apache_conf_file_path = 'D:\\works\\httpd.conf'
-
-    args_list = [
-        # [project.vcs_repo, project.project_dir,'',''],
-        # [os.path.join(project.project_dir, 'public', 'static')],
-        # [project.mysql_db_name, sql_paths, 'root', '', 'localhost'],
-        [project.project_dir, changes_dict],
-        [apache_conf_file_path, project.project_dir, str(project.instance_port)],
-        []
-    ]
-
-    result = []
-
-    for i in range(len(tasks)):
-        q = Queue.Queue()
-        args_list[i].append(q)
-        t = threading.Thread(target=tasks[i][1], args=args_list[i])
-        current_task = tasks[i][0]
-        phrases = [
-            'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks))),
-            'Executing Task: {}.....'.format(current_task),
-            'Project Deployment in progress at step {}....'.format(str(i + 1))
-        ]
-
-        t.start()
-
-        while t.isAlive():
-
-            self.update_state(
-                state='PROGRESS',
-                meta={
-                    'status': random.choice(phrases)
-                }
-            )
-        t.join()
-        result.append(q.get())
-        completed_tasks += 1
-
-        self.update_state(
-            state='PROGRESS',
-            meta={
-                'status': 'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks)))
-                # 'cmd': result['cmd'],
-                # 'output': result['out'].split('\n')
-            }
-        )
-        time.sleep(2)
-
-    self.update_state(state='PROGRESS', meta={'status': 'Finishing Deployment Process.....'})
-    time.sleep(4)
-
-    project.is_deployed = 1
-    db.session.commit()
-    #print result
-    #store log file in disk
-
-    return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!', 'log': result}
-
-
-# ###########################################################################
-# Prism ERP deploy procedure
-@celery_obj.task(bind=True)
-def PrismERPDeploy(self, project_id):
-    import threading, time, os, random, Queue
-    from fabfile.fabfile import remote_deploy
-
-
-
-    project = Project.query.get(project_id)
-    tasks = [
-        # ['Check Out', remote_deploy.checkout],
-        # ['Static File Minification', remote_deploy.change_static_to_pro],
-        # ['Database Creation', remote_deploy.create_db],
-        # ['Deployment Setting Change', remote_deploy.change_settings],
-        # ['Apache Vhost Add', remote_deploy.create_vhost],
-        ['Server Restart', remote_deploy.server_restart]
-    ]
-
-    completed_tasks = 0
-
-    # Dummy Steps
-    self.update_state(state='INITIAL', meta={'status': 'Preparing to deploy......'})
-    time.sleep(4)
-    self.update_state(state='INITIAL', meta={'status': 'Gathering resources......'})
-    time.sleep(4)
-
-    sql_paths = [
-        os.path.altsep.join([project.project_dir, 'database', 'prism.sql']),
-        os.path.altsep.join([project.project_dir, 'database', 'sphere.sql']),
-        os.path.altsep.join([project.project_dir, 'database', 'lines.sql'])
-    ]
-
-    changes_dict = {
-        'INTERNAL_NAME': '\'prism\'',
-        'PRODUCT_NAME': '\'Sphere\'',
-        'PRODUCT_TITLE': '\'LinesPay\'',
-        'DEBUG': 'False',
-        'PRODUCTION': 'True',
-        # 'DIVINEMAIL_IP' : '',
-        '\'NAME\':': '\'testdb\',',
-        '\'USER\':': '\'HUZR\',',
-        '\'PASSWORD\':': '\'123\',',
-        'BIRTVIEWER_DIR': '\'D:\\\\birt\\\\\'',
-        'COMPANY_NAME': '\'HZ\''
-    }
-
-    apache_conf_file_path = '/etc/httpd/conf/httpd.conf'
-    machine = Machine.query.get(1)
-
-    args_list = [
-        # [project.vcs_repo, project.project_dir,'palash','P@@slash'],
-        # [os.path.altsep.join([project.project_dir, 'public', 'static'])],
-        # [project.mysql_db_name, sql_paths, machine.mysql_username, machine.mysql_password, 'localhost'],
-        # [project.project_dir, changes_dict],
-        # [apache_conf_file_path, project.project_dir, str(project.instance_port)],
-        []
-    ]
-
-    result = []
-
-    for i in range(len(tasks)):
-        q = Queue.Queue()
-        args_list[i].append(q)
-        t = threading.Thread(target=tasks[i][1], args=args_list[i])
-        current_task = tasks[i][0]
-        phrases = [
-            'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks))),
-            'Executing Task: {}.....'.format(current_task),
-            'Project Deployment in progress at step {}....'.format(str(i + 1))
-        ]
-
-        t.start()
-
-        while t.isAlive():
-            self.update_state(
-                state='PROGRESS',
-                meta={
-                    'status': random.choice(phrases)
-                }
-            )
-        t.join()
-        result.append(q.get())
-        completed_tasks += 1
-        self.update_state(
-            state='PROGRESS',
-            meta={
-                'status': 'Completed: {}/{} tasks'.format(str(completed_tasks), str(len(tasks)))
-                # 'cmd': result['cmd'],
-                # 'output': result['out'].split('\n')
-            }
-        )
-        time.sleep(2)
-
-    self.update_state(state='PROGRESS', meta={'status': 'Finishing Deployment Process.....'})
-    time.sleep(4)
-
-    project.is_deployed = 1
-    db.session.commit()
-    #print result
-    #store log file in disk
-
-    return {'status': 'All Tasks Completed!', 'result': 'Project Deployment Completed!', 'log': result}
-
-
-# Async Email sending
-# Setup the task
-@celery_obj.task
-def send_security_email(msg):
-    # Use the Flask-Mail extension instance to send the incoming ``msg`` parameter
-    # which is an instance of `flask_mail.Message`
-    with app.app_context():
-        mail.send(msg)
-
-@security.send_mail_task
-def delay_security_email(msg):
-    send_security_email.delay(msg)

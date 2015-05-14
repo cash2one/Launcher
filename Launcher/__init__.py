@@ -29,6 +29,7 @@ celery_obj = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery_obj.conf.update(app.config)
 
 from .import views, models
+from .import error_views, tasks, ajax
 
 # change DEBUG in config
 if not app.debug:
