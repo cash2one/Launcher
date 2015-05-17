@@ -22,8 +22,8 @@
                 <td>SSH Login Username</td>
 {#                <td>SSH Login Password</td>#}
                 <td>SSH Port</td>
-                <td>MySQL Username</td>
-{#                <td>MySQL Password</td>#}
+                <td>Database Username</td>
+                <td>Action</td>
             </tr>
             </thead>
             <tbody>
@@ -36,8 +36,8 @@
                     <td>{{ host.ssh_username }}</td>
 {#                    <td>{{ host.ssh_password }}</td>#}
                     <td>{{ host.ssh_port }}</td>
-                    <td>{{ host.mysql_username }}</td>
-{#                    <td>{{ host.mysql_password }}</td>#}
+                    <td>{{ host.db_username }}</td>
+                    <td><a class="btn btn-warning glyphicon glyphicon-edit" href="{{ url_for('host_edit', machine_id=host.id) }}"> Edit</a><hr/><a class="btn btn-danger glyphicon glyphicon-trash" href="{{ url_for('host_delete', machine_id=host.id) }}"> Delete</a></td>
                 </tr>
             {% endfor %}
             </tbody>

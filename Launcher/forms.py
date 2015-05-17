@@ -28,12 +28,13 @@ class ProjectAddEditForm(Form):
     name = StringField(label='Project Name', validators=[validators.DataRequired("Must give a project name")])
     client_name = StringField(label='Client Name')
     product_type = SelectField(label='Product Type', validators=[validators.DataRequired()])
-    server = SelectField(label='Server Machine', validators=[validators.DataRequired()])
+    server_id = SelectField(label='Server Machine', validators=[validators.DataRequired()], coerce=int)
     instance_port = IntegerField(label='Instance Port #', validators=[validators.DataRequired("Must provide an integer port")])
     project_dir = StringField(label='Project Directory', validators=[validators.DataRequired("Must be valid path")])
     vcs_tool = SelectField(label='Version Control Tool', choices=[('SVN', 'SubVersioN'),('Git', 'Git')])
     vcs_repo = StringField(label='VCS Repository URL', validators=[validators.DataRequired()])
-    mysql_database_name = StringField(label='Database Name', validators=[validators.DataRequired()])
+    rdbms = SelectField('DB Management System', choices=[('mysql', 'MySQL'), ('postgresql', 'PostgreSQL'), ('oracle', 'Oracle'), ('mssql', 'MSSQL'), ('sqlite', 'SQLite')])
+    db_name = StringField(label='Database Name', validators=[validators.DataRequired()])
 
 
 class ProductAddEditForm(Form):
@@ -75,10 +76,10 @@ class ServerMachineAddEditForm(Form):
     host_ip = StringField(label='Host IP Address', validators=[validators.IPAddress(), validators.DataRequired()])
     host_address = StringField(label='Host Address', validators=[validators.DataRequired()])
     ssh_username = StringField(label='SSH Username', validators=[validators.DataRequired()])
-    ssh_password = PasswordField(label='SSH Password', validators=[validators.DataRequired()])
+    ssh_password = PasswordField(label='SSH Password', validators=[validators.DataRequired()], widget=widgets.PasswordInput(hide_value=False))
     ssh_port = IntegerField(label='SSH Port', validators=[validators.DataRequired()])
-    mysql_username = StringField(label='MySQL Username', validators=[validators.DataRequired()])
-    mysql_password = PasswordField(label='MySQL Password', validators=[validators.DataRequired()])
+    db_username = StringField(label='Database System Username', validators=[validators.DataRequired()])
+    db_password = PasswordField(label='Database System Password', validators=[validators.DataRequired()], widget=widgets.PasswordInput(hide_value=False))
 
 
 class ProfileEditForm(Form):
@@ -86,4 +87,4 @@ class ProfileEditForm(Form):
     display_name = StringField(label='Display Name to be shown after login:')
     full_name = StringField(label='Your Full Name:')
     svn_username = StringField(label='Your SVN Username: (Do not enter credentials unless needed)')
-    svn_password = PasswordField(label='Your SVN Password: (Do not enter credentials unless needed)')
+    svn_password = PasswordField(label='Your SVN Password: (Do not enter credentials unless needed)', widget=widgets.PasswordInput(hide_value=False))

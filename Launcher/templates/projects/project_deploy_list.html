@@ -19,7 +19,7 @@
                     <td>Project Directory</td>
                     <td>VCS Tool</td>
                     <td>VCS Repository URL</td>
-                    <td>Database Name</td>
+                    <td>Database</td>
                     <td>Status</td>
                 </tr>
             </thead>
@@ -35,7 +35,7 @@
                         <td>{{ project.project_dir }}</td>
                         <td>{{ project.vcs_tool }}</td>
                         <td>{{ project.vcs_repo }}</td>
-                        <td>{{ project.mysql_db_name }}</td>
+                        <td>{{ project.rdbms }}{{ '://' if project.rdbms else '' }}{{ project.db_name }}</td>
                         {%- if project.is_deployed %}
                         <td>Deployed</td>
                         {%- else %}

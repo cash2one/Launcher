@@ -30,26 +30,10 @@
 
     <h4 class="text-danger underline">Changeable details:</h4>
     <hr/>
-    {% from '_macros.html' import render_field_with_errors, render_field %}
-    <form method="POST" action="{{ url_for('profile_edit') }}">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ render_field_with_errors(form.display_name, class_='form-control') }}
-        </div>
-        <div class="form-group">
-            {{ render_field_with_errors(form.full_name, class_='form-control') }}
-        </div>
-        <div class="form-group">
-            {{ render_field_with_errors(form.svn_username, class_='form-control') }}
-        </div>
-        <div class="form-group">
-            {{ render_field_with_errors(form.svn_password, class_='form-control') }}
-        </div>
-        <hr/>
-        <p class="alert alert-danger">Do not click <kbd>Submit Changes</kbd> if you did not change anything</p>
-        <button type="submit" class="btn btn-danger btn-lg">Submit Changes</button>
-
-    </form>
+    {% from '_macros.html' import render_full_form %}
+    {{ render_full_form(url_for('profile_edit'), form, 'Submit Changes') }}
+{#        <p class="alert alert-danger">Do not click <kbd>Submit Changes</kbd> if you did not change anything</p>#}
+{#        <button type="submit" class="btn btn-danger btn-lg">Submit Changes</button>#}
 
 {% endblock content %}
 

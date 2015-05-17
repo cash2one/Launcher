@@ -26,21 +26,7 @@
 
         <button id="show-credits" class="btn btn-lg btn-info">Credits</button>
         <div id="credits">
-            <h3>Credits:</h3>
-
-            <span><img src="{{ url_for('static', filename='imgs/python.png') }}" width="200" class="img-responsive"/></span>
-            <br/>
-            <span><img src="{{ url_for('static', filename='imgs/flask.png') }}" width="250" class="img-responsive"/></span>
-            <br/>
-            <span><img src="{{ url_for('static', filename='imgs/jinja.png') }}" width="250" class="img-responsive"/></span>
-            <br/>
-            <span><img src="{{ url_for('static', filename='imgs/flask-sqlalchemy.png') }}" width="500" class="img-responsive"/></span>
-            <br/>
-            <span><img src="{{ url_for('static', filename='imgs/flask-security-full.png') }}" width="450" class="img-responsive"/></span>
-            <br/>
-            <span><img src="{{ url_for('static', filename='imgs/fabric1.png') }}" width="" class="img-responsive"/></span>
-            <br/>
-            <span><img src="{{ url_for('static', filename='imgs/celery.png') }}" width="" class="img-responsive"/></span>
+            {% include 'credits.html' %}
         </div>
     </div>
 {% endblock content %}

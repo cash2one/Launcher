@@ -1,4 +1,9 @@
-__author__ = 'HZ'
+"""
+Module: run_app.py
+Author: HZ
+
+Shortcut python script for running the app...can also be done from management.
+"""
 
 
 from Launcher import app

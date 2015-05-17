@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Server{% endblock title %}
+
+{% block content %}
+
+    {% from '_macros.html' import render_full_form %}
+
+    <h3>Edit Server</h3>
+    <br/>
+    {{ render_full_form(url_for('host_edit', machine_id=host.id), form, 'Submit') }}
+
+{% endblock content %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product{% endblock title %}
+
+{% block content %}
+
+    {% from '_macros.html' import render_full_form %}
+
+    <h2>Edit existing Product:</h2>
+    <hr/>
+    {{ render_full_form(url_for('project_edit', project_id=project.id), form, 'Submit') }}
+
+{% endblock content %}

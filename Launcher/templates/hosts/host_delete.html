@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Server{% endblock title %}
+
+{% block content %}
+
+    {%- if host -%}
+    <h1 class="text-danger">Are you sure, you want to delete this Server?</h1>
+    <hr/>
+    <button class="btn btn-lg btn-danger">Confirm Delete</button>
+    {%- else -%}
+    <h1 class="well text-danger">Sorry, no such product.</h1>
+    {%- endif -%}
+{% endblock content %}
+
+
+{% block js %}
+    <script type="text/javascript">
+    $(document).ready(function (){
+        var btn = $('button.btn');
+        btn.click(function (){
+            $.ajax({
+                url: location.href,
+                success: function (){
+                    alert('Server Deleted Successfully!');
+                    location.replace('{{ url_for('hosts_list') }}');
+                },
+                error: function () {
+                    alert('Error deleting Server!');
+                }
+            })
+        });
+    });
+    </script>
+{% endblock js %}

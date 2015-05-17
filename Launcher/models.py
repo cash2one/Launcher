@@ -44,7 +44,8 @@ class Project(db.Model):
     vcs_tool = db.Column(db.Text)
     vcs_repo = db.Column(db.Text)
 
-    mysql_db_name = db.Column(db.Text)
+    rdbms = db.Column(db.Text)
+    db_name = db.Column(db.Text)
 
     is_deployed = db.Column(db.Text)
     celery_task_id = db.Column(db.Text)
@@ -59,8 +60,9 @@ class Machine(db.Model):
     ssh_username = db.Column(db.Text)
     ssh_password = db.Column(db.Text)
     ssh_port = db.Column(db.Integer)
-    mysql_username = db.Column(db.Text)
-    mysql_password = db.Column(db.Text)
+    #ToDO: Various db system?.....should another table be created?!
+    db_username = db.Column(db.Text)
+    db_password = db.Column(db.Text)
 
     projects = db.relationship('Project', backref='machine')
 
@@ -69,7 +71,40 @@ class Machine(db.Model):
 def receive_before_insert(mapper, connection, target):
     """listen for the 'before_insert' event"""
     target.ssh_password = pwd_encryption(target.ssh_password)
-    target.mysql_password = pwd_encryption(target.mysql_password)
+    target.db_password = pwd_encryption(target.db_password)
+
+@event.listens_for(Machine, 'before_update')
+def receive_before_update(mapper, connection, target):
+    """listen for the 'before_update' event"""
+    from sqlalchemy.orm.attributes import get_history
+
+    ssh_pass_hist = get_history(target, 'ssh_password')
+    added, unchanged, deleted = ssh_pass_hist
+
+    try:
+        if added[0] == pwd_decryption(deleted[0]):
+            #print 'same'
+            target.ssh_password = deleted[0]
+        else:
+            #print 'not same'
+            target.ssh_password = pwd_encryption(target.ssh_password)
+    except Exception as e:
+        print e
+        target.ssh_password = pwd_encryption(target.ssh_password)
+
+    db_pass_hist = get_history(target, 'db_password')
+    added, unchanged, deleted = db_pass_hist
+
+    try:
+        if added[0] == pwd_decryption(deleted[0]):
+            #print 'same'
+            target.db_password = deleted[0]
+        else:
+            #print 'not same'
+            target.db_password = pwd_encryption(target.db_password)
+    except Exception as e:
+        print e
+        target.db_password = pwd_encryption(target.db_password)
 
 
 class Message(db.Model):
@@ -145,4 +180,5 @@ def receive_before_update(mapper, connection, target):
     except Exception as e:
         print e
         target.svn_password = pwd_encryption(target.svn_password)
+
 

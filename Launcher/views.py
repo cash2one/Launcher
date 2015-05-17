@@ -18,6 +18,7 @@ from utils import DST
 @app.route('/index')
 def index():
     """Site root, Index view, Dashboard"""
+    #Includes the short 'HowTo'
     return render_template('index.html')
 
 
@@ -40,14 +41,14 @@ def projects_list():
 def project_add():
     """Add a new project, possibly for future deploy"""
 
-    project_add_form = ProjectAddEditForm(request.form)
+    project_add_form = ProjectAddEditForm(formdata=request.form)
     project_add_form.product_type.choices = [(each[0], each[0]) for each in Product.query.with_entities(Product.name).all()]
-    project_add_form.server.choices = [(each[1], each[0]) for each in Machine.query.with_entities(Machine.host_name, Machine.id).all()]
+    project_add_form.server_id.choices = [(each[1], each[0]) for each in Machine.query.with_entities(Machine.host_name, Machine.id).all()]
 
     if request.method == 'POST':
         if project_add_form.validate_on_submit():
             project = Project()
-            project_add_form.populate_obj(project)
+            project_add_form.populate_obj(obj=project)
             db.session.add(project)
             db.session.commit()
             flash('Project Successfully Added!')
@@ -56,6 +57,48 @@ def project_add():
             flash('Form Validation Failed!!')
 
     return render_template('projects/project_add.html', form=project_add_form)
+
+
+###########################################################################
+@app.route('/project_edit/<project_id>', methods=['GET', 'POST'])
+@login_required
+@roles_accepted('admin', 'mod')
+def project_edit(project_id):
+    """Edit a project information"""
+
+    project = Project.query.get_or_404(project_id)
+
+    project_edit_form = ProjectAddEditForm(formdata=request.form, obj=project)
+    project_edit_form.product_type.choices = [(each[0], each[0]) for each in Product.query.with_entities(Product.name).all()]
+    project_edit_form.server_id.choices = [(each[1], each[0]) for each in Machine.query.with_entities(Machine.host_name, Machine.id).all()]
+
+    if request.method == 'POST':
+        if project_edit_form.validate_on_submit():
+            project_edit_form.populate_obj(obj=project)
+            db.session.commit()
+            flash('Project Successfully Edited!')
+            return redirect(url_for('projects_list'))
+        else:
+            flash('Form Validation Failed!!')
+
+    return render_template('projects/project_edit.html', form=project_edit_form, project=project)
+
+
+###########################################################################
+@app.route('/project_delete/<project_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def project_delete(project_id):
+    """Delete a project from the database"""
+
+    project = Project.query.get_or_404(project_id)
+
+    if request.is_xhr:
+        db.session.delete(project)
+        db.session.commit()
+        flash('Project Deleted Successfully!')
+
+    return render_template('projects/project_delete.html', project=project)
 
 
 ###########################################################################
@@ -419,6 +462,46 @@ def host_add():
     return render_template('hosts/host_add.html', form=host_add_form)
 
 
+###########################################################################
+@app.route('/host_edit/<machine_id>', methods=['GET', 'POST'])
+@login_required
+@roles_accepted('admin', 'mod')
+def host_edit(machine_id):
+    """Add a new server host machine, manually"""
+
+    host = Machine.query.get_or_404(machine_id)
+    host.ssh_password = pwd_decryption(host.ssh_password)
+    host.db_password = pwd_decryption(host.db_password)
+
+    host_edit_form = ServerMachineAddEditForm(formdata=request.form, obj=host)
+
+    if request.method == 'POST':
+        if host_edit_form.validate_on_submit():
+            host_edit_form.populate_obj(host)
+            db.session.commit()
+            flash('Server Edited Successfully!')
+            return redirect(url_for('hosts_list'))
+
+    return render_template('hosts/host_edit.html', form=host_edit_form, host=host)
+
+
+###########################################################################
+@app.route('/host_delete/<machine_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def host_delete(machine_id):
+    """Delete a project from the database"""
+
+    host = Machine.query.get_or_404(machine_id)
+
+    if request.is_xhr:
+        db.session.delete(host)
+        db.session.commit()
+        flash('Server Deleted Successfully!')
+
+    return render_template('hosts/host_delete.html', host=host)
+
+
 #######################-----Setting Views----##############################
 ###########################################################################
 @app.route('/profile_view')
@@ -436,29 +519,25 @@ def profile_view():
 @login_required
 def profile_edit():
     """Edit own profile"""
-    import base64
 
     user = User.query.get_or_404(current_user.id)
+    user.svn_password = pwd_decryption(user.svn_password)
+
     profile_edit_form = ProfileEditForm(formdata=request.form, obj=user)
 
     if request.method == 'POST':
         if profile_edit_form.validate_on_submit():
-
             profile_edit_form.populate_obj(user)
-
-            # user.display_name = profile_edit_form.display_name.data
-            # user.full_name = profile_edit_form.full_name.data
-            # user.svn_username = profile_edit_form.svn_username.data
-            # user.svn_password = base64.encodestring(profile_edit_form.svn_password.data)
-
             db.session.commit()
-
             flash('Successfully updated profile info!')
             return redirect(url_for('profile_view'))
         else:
             flash('Form Validation Failed!!')
 
     return render_template('users/profile_edit.html', user=user, DST=DST, form=profile_edit_form)
+
+
+###########################################################################
 
 @app.route('/message', methods=['GET', 'POST'])
 @login_required
