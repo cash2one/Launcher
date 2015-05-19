@@ -1,6 +1,25 @@
-__author__ = 'HZ'
-#package
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
+"""
+Module: Launcher
+Author: HZ
+Created: Mar 23, 2015
+
+Description: 'The Launcher Application by Flask. Instantiates here. Contains imports and loggers. Depends on the modules: models, views, form, ajax, tasks, error_views etc.'
+"""
+
+# Ownership information
+__author__ = 'HZ'
+__copyright__ = "Copyright 2015, HZ, Divine IT Ltd."
+__credits__ = ["HZ"]
+__license__ = "GPL"
+__version__ = "0.0.1"
+__maintainer__ = "HZ"
+__email__ = "hz.ce06@gmail.com"
+__status__ = "Development"
+
+# global imports below: built-in, 3rd party, own
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail

@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: views.py
+Author: HZ
+Created: March 25, 2015
+
+Description: 'Views for the project'
+"""
 
 from .import app, db, celery_obj, security, mail, user_datastore
 from flask import render_template, flash, request, redirect, url_for, jsonify, session, abort

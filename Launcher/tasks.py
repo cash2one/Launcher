@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: tasks.py
+Author: HZ
+Created: March 25, 2015
+
+Description: 'Celery Tasks for the project'
+"""
 
 from views import *
 

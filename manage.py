@@ -1,10 +1,15 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """
 Module: manage.py
 Author: HZ
+Created: Apr 8, 2015
 
-This module bears custom made management commands which can be run for the application context.
+Description: 'This module bears custom made management commands which can be run for the application context.'
 """
 
+# global imports below: built-in, 3rd party, own
 from flask.ext.script import Manager
 from flask.ext.script.commands import Server, Shell, ShowUrls, Clean
 from flask.ext.security.script import CreateUserCommand, AddRoleCommand, RemoveRoleCommand, ActivateUserCommand, DeactivateUserCommand
@@ -12,7 +17,18 @@ from flask.ext.security.script import CreateUserCommand, AddRoleCommand, RemoveR
 from Launcher import app
 #from flask_application.script import ResetDB, PopulateDB
 #from flask_application.tests.script import RunTests
-from management.commands import Celery_Script, Flower_Script
+from management import Celery_Script, Flower_Script
+
+# Ownership information
+__author__ = 'HZ'
+__copyright__ = "Copyright 2015, HZ, Divine IT Ltd."
+__credits__ = ["HZ"]
+__license__ = "GPL"
+__version__ = "0.0.1"
+__maintainer__ = "HZ"
+__email__ = "hz.ce06@gmail.com"
+__status__ = "Development"
+
 
 manager = Manager(app)
 manager.add_command("shell", Shell(use_ipython=True))

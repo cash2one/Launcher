@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: error_views.py
+Author: HZ
+Created: May 14, 2015
+
+Description: 'Contains custom error views for the flask app.'
+"""
 
 from views import *
 

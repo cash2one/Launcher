@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: utils.py
+Author: HZ
+Created: March 25, 2015
+
+Description: 'Custom Utils for the project'
+"""
 
 import base64
 from datetime import timedelta

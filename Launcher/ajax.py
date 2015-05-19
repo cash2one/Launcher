@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: ajax.py
+Author: HZ
+Created: May 14, 2015
+
+Description: 'Contains ajax views for the flask app.'
+"""
 
 from tasks import *
 

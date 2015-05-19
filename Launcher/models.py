@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: models.py
+Author: HZ
+Created: March 25, 2015
+
+Description: 'Models for the project'
+"""
 
 
 from .import db

@@ -1,4 +1,10 @@
-__author__ = 'HZ'
+"""
+Module: forms.py
+Author: HZ
+Created: March 25, 2015
+
+Description: 'Forms for the project'
+"""
 
 
 from flask_wtf import Form

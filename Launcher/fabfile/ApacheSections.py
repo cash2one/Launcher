@@ -1,5 +1,5 @@
 def parse_section(child_section, configs=[]):
-    
+    """Custom function for getting the full parsed config data from conf as list"""
     for i in range(len(child_section)):
         if child_section[i].section:
             configs.append('New Section')

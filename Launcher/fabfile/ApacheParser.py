@@ -1,7 +1,30 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+Module: ApacheParser.py
+Author: HZ
+Created: Mar 27, 2015
+
+Description: 'Apache httpd.conf file parser. Basically an XML parser.'
+"""
+
+# global imports below: built-in, 3rd party, own
 import re
 
-class ApacheConfig(object):
+# Ownership information
+__author__ = 'HZ'
+__copyright__ = "Copyright 2015, HZ, Divine IT Ltd."
+__credits__ = ["HZ"]
+__license__ = "GPL"
+__version__ = "0.0.1"
+__maintainer__ = "HZ"
+__email__ = "hz.ce06@gmail.com"
+__status__ = "Development"
 
+
+class ApacheConfig(object):
+    """The Conf Parser object. Instantiate with any name, don't matter much. Then use parse_file method with path with to conf file"""
     re_comment = re.compile(r"""^#.*$""")
     re_section_start = re.compile(r"""^<(?P<name>[^/\s>]+)\s*(?P<value>[^>]+)?>$""")
     re_section_end = re.compile(r"""^</(?P<name>[^\s>]+)\s*>$""")
@@ -13,21 +36,18 @@ class ApacheConfig(object):
         self.values = values
         self.section = section
 
-
     def add_child(self, child):
         self.children.append(child)
         child.parent = self
         return child
 
-
     def find(self, path):
-        """Return the first element wich matches the path.
+        """Return the first element which matches the path.
         """
         pathelements = path.strip("/").split("/")
         if pathelements[0] == '':
             return self
         return self._find(pathelements)
-
 
     def _find(self, pathelements):
         if pathelements: # there is still more to do ...
@@ -41,15 +61,13 @@ class ApacheConfig(object):
         else: # no pathelements left, result is self
             return self
 
-
     def findall(self, path):
-        """Return all elements wich match the path.
+        """Return all elements which match the path.
         """
         pathelements = path.strip("/").split("/")
         if pathelements[0] == '':
             return [self]
         return self._findall(pathelements)
-
 
     def _findall(self, pathelements):
         if pathelements: # there is still more to do ...
@@ -61,7 +79,6 @@ class ApacheConfig(object):
             return result
         else: # no pathelements left, result is self
             return [self]
-            
 
     def print_r(self, indent = -1):
         """Recursively print node.
@@ -77,7 +94,6 @@ class ApacheConfig(object):
             if indent >= 0:
                 print "    " * indent + self.name + " " + " ".join(self.values)
 
-
     @classmethod
     def parse_file(cls, file):
         """Parse a file.
@@ -87,13 +103,11 @@ class ApacheConfig(object):
         f.close()
         return root
 
-
     @classmethod
     def parse_string(cls, string):
         """Parse a string.
         """
         return cls._parse(string.splitlines())
-
 
     @classmethod
     def _parse(cls, itobj):
