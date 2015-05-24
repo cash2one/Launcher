@@ -11,7 +11,8 @@ Description: 'Shortcut python script for running the app...can also be done from
 
 # global imports below: built-in, 3rd party, own
 import netifaces as ni
-from Launcher import app
+from Launcher import app, socketio
+from gevent import monkey
 
 
 # Ownership information
@@ -26,13 +27,16 @@ __status__ = "Development"
 
 
 def run_application():
-    # for nt
+    # for nt, mayb for unix too
+    monkey.patch_all()
     #TODO: can take cmd arguments for host, port, debug
     ip = ni.ifaddresses(ni.gateways()[2][0][1])[2][0]['addr']
     try:
-        app.run(host=ip, port=5000, debug=app.debug)
+        #app.run(host=ip, port=5000, debug=app.debug)
+        socketio.run(app, host=ip, port=5000)
     except:
-        app.run(host='127.0.0.1', port=5000, debug=app.debug)
+        #app.run(host='127.0.0.1', port=5000, debug=app.debug)
+        socketio.run(app, host='127.0.0.1', port=5000)
 
 
 if __name__ == '__main__':

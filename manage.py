@@ -18,6 +18,7 @@ from Launcher import app
 #from flask_application.script import ResetDB, PopulateDB
 #from flask_application.tests.script import RunTests
 from management import Celery_Script, Flower_Script
+from run_app import run_application
 
 # Ownership information
 __author__ = 'HZ'
@@ -32,7 +33,8 @@ __status__ = "Development"
 
 manager = Manager(app)
 manager.add_command("shell", Shell(use_ipython=True))
-manager.add_command("runserver", Server(use_reloader=True))
+# manager.add_command("runserver", Server(use_reloader=True))
+manager.add_command("runserver", run_application())
 manager.add_command("show_urls", ShowUrls())
 manager.add_command("clean", Clean())
 

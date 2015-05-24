@@ -204,6 +204,11 @@
                                 <a class="btn btn-success" href="{{ url_for('messages') }}">
                                     Sent <span class="badge">{{ current_user.msgs_sent|length }}</span>
                                 </a>
+                                <br/>
+                                <br/>
+                                <a class="btn btn-primary" href="/chatstart">
+                                    Enter Chat!</span>
+                                </a>
                             </div>
                         </div>
                         {%- endif %}

@@ -26,6 +26,7 @@ from flask_mail import Mail
 from flask.ext.security import Security, SQLAlchemyUserDatastore
 from celery import Celery
 from flask.ext.babel import Babel
+from flask.ext.socketio import SocketIO
 
 
 app = Flask(__name__)
@@ -49,6 +50,13 @@ celery_obj.conf.update(app.config)
 
 from .import views, models
 from .import error_views, tasks, ajax
+
+# SocketIO chat support initialization
+socketio = SocketIO()
+from chat import chat as main_blueprint
+app.register_blueprint(main_blueprint)
+socketio.init_app(app)
+
 
 # change DEBUG in config
 if not app.debug:

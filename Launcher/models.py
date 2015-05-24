@@ -175,16 +175,16 @@ def receive_before_update(mapper, connection, target):
     from sqlalchemy.orm.attributes import get_history
     hist = get_history(target, 'svn_password')
     added, unchanged, deleted = hist
-
-    try:
-        if added[0] == pwd_decryption(deleted[0]):
-            #print 'same'
-            target.svn_password = deleted[0]
-        else:
-            #print 'not same'
+    if added or deleted:
+        try:
+            if added[0] == pwd_decryption(deleted[0]):
+                #print 'same'
+                target.svn_password = deleted[0]
+            else:
+                #print 'not same'
+                target.svn_password = pwd_encryption(target.svn_password)
+        except Exception as e:
+            print e
             target.svn_password = pwd_encryption(target.svn_password)
-    except Exception as e:
-        print e
-        target.svn_password = pwd_encryption(target.svn_password)
 
 
